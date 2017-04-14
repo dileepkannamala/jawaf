@@ -1,6 +1,8 @@
 
 ## Jawaf ##
 
+[![Build Status](https://travis-ci.org/danpozmanter/jawaf.svg?branch=master)](https://travis-ci.org/danpozmanter/jawaf)
+
 **Jawaf asynchronous web application framework**
 
 A fast asynchronous web application framework.
