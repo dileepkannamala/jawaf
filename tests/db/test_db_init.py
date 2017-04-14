@@ -8,12 +8,9 @@ async def test_create_tables(test_project, waf):
     create_tables(['test_app'], warn=False)
     await waf.create_database_pool('default')
     async with Connection() as con:
-        row = await con.fetchrow('''SELECT EXISTS (
-           SELECT 1
-           FROM   pg_tables
-           WHERE  tablename = 'test_app_person');
-        ''')
-        assert row.exists == True
+        await con.execute("INSERT INTO test_app_person VALUES (1, 'test_1')")
+        row = await con.fetchrow('''SELECT * FROM test_app_person''')
+        assert row.id == 1
     await waf.close_database_pools()
 
 @pytest.mark.asyncio

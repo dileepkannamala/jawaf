@@ -2,4 +2,9 @@ language: python
 python:
     - "3.6"
 install: "pip install -r requirements.txt"
+notifications:
+  email: false
 script: py.test
+before_script:
+  - echo 'America/New_York' | sudo tee /etc/timezone
+  - sudo dpkg-reconfigure --frontend noninteractive tzdata
