@@ -1,0 +1,5 @@
+include *.md *.txt setup.py
+graft jawaf
+include jawaf/templates/*
+global-exclude __pycache__
+global-exclude *.py[co]

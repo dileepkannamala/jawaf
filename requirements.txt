@@ -1,0 +1,4 @@
+-r requirements/auth.txt
+-r requirements/core.txt
+-r requirements/postgresql.txt
+-r requirements/testing.txt
