@@ -25,6 +25,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_CONFIG = {
+    'password_reset_expiration': 3, # Hours
     'database': 'default', # Specify the database jawaf.auth uses.
     'login_url': '/login/',
 }

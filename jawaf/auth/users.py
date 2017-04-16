@@ -1,10 +1,16 @@
+import base64
 import datetime
+import hashlib
+import secrets
 from argon2.exceptions import VerifyMismatchError
 import sqlalchemy as sa
-from jawaf.auth.tables import user
+from jawaf.auth.tables import user, user_password_reset
 from jawaf.conf import settings
 from jawaf.db import Connection
 from jawaf.utils.timezone import get_utc
+
+SELECTOR_ENCODED_LENGTH = 24
+SELECTOR_TOKEN_LENGTH = 18
 
 def _database_key(database):
     """Get the default database key for jawaf.auth
@@ -41,6 +47,45 @@ async def check_user(username='', password='', database=None):
             return False
         if check_password(password, row.password):
             return row
+        return False
+
+async def check_user_reset_access(username, user_id, split_token, database=None):
+    """Check password reset token for the current user.
+    :param username: String. Username to check.
+    :param user_id: Int. User_id..
+    :param split_token: String. Split token to search for and validate against.
+    :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
+    """
+    if username is None or user_id is None:
+        return False
+    database = _database_key(database)
+    selector = split_token[:SELECTOR_ENCODED_LENGTH].encode('utf-8')
+    verifier = split_token[SELECTOR_ENCODED_LENGTH:].encode('utf-8')
+    async with Connection(database) as con:
+        query = sa.select('*').select_from(user) \
+            .where(user.c.username==username) \
+            .where(user.c.id==user_id)
+        row = await con.fetchrow(query)
+        if not row:
+            # username and id don't match!
+            return False
+        query = sa.select('*').select_from(user_password_reset) \
+            .where(user_password_reset.c.selector==selector) \
+            .where(user_password_reset.c.user_id==user_id)
+        row = await con.fetchrow(query)
+        if not row:
+            # Selector not found - invalid link.
+            return False
+        if get_utc(datetime.datetime.now()) > row.expires:
+            # First remove the expired record.
+            stmt = user_password_reset.delete().where(user_password_reset.c.id==row.id)
+            await con.execute(stmt)
+            return False
+        if hashlib.sha256(verifier).hexdigest() == row.verifier:
+            # Only allow this reset token to be used once.
+            stmt = user_password_reset.delete().where(user_password_reset.c.id==row.id)
+            await con.execute(stmt)
+            return True
         return False
 
 async def create_user(username, 
@@ -127,9 +172,60 @@ def create_user_from_engine(engine, username='',
             last_login=None)
         con.execute(stmt)
 
+
+def decode_user_id(encoded_user_id):
+    """Get decoded user_id.
+    :param encoded_user_id: String. Encoded user_id..
+    :return: Int. User id.
+    """
+    try:
+        return int(base64.urlsafe_b64decode(encoded_user_id.encode('utf-8')))
+    except:
+        return None
+
+def encode_user_id(user_id):
+    """Encode the user id for use in URL.
+    :param user_id: Int. User id to encode.
+    :return: String. Encoded user id.
+    """
+    return base64.urlsafe_b64encode(bytes(str(user_id).encode('utf-8'))).decode('utf-8')
+
+def _generate_split_token():
+    selector = base64.urlsafe_b64encode(secrets.token_bytes(SELECTOR_TOKEN_LENGTH))
+    verifier = base64.urlsafe_b64encode(secrets.token_bytes(SELECTOR_TOKEN_LENGTH+6))
+    return selector, verifier
+
+async def generate_reset_split_token(user_id, database=None):
+    """Generate a password reset token for the current user.
+    :param user_id: Int. User id to generate split token for.
+    :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
+    :return: String. Joined token.
+    """
+    database = _database_key(database)
+    selector, verifier = _generate_split_token()
+    async with Connection(database) as con:
+        stmt = user_password_reset.insert().values(
+            user_id=user_id,
+            selector=selector,
+            verifier=hashlib.sha256(verifier).hexdigest(),
+            expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=settings.AUTH_CONFIG['password_reset_expiration'])),
+            )
+        await con.execute(stmt)
+    return '%s%s' % (selector.decode('utf-8'), verifier.decode('utf-8'))
+
+async def generate_password_reset_path(user_id, database=None):
+    """Generate the reset url.
+    :param user_id: Int. User id to generate split token for.
+    :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
+    :return: String. Path component of url to process reset.
+    """
+    encoded_user_id = encode_user_id(user_id)
+    token = await generate_reset_split_token(user_id, database=database)
+    return '/auth/password_reset/%s/%s/' % (encoded_user_id, token)
+
 async def log_in(request, user_row):
     request['session']['user'] = user_row
-    update_user(database=None, target_username=user_row.username, last_login=get_utc(datetime.datetime.now()))
+    await update_user(database=None, target_username=user_row.username, last_login=get_utc(datetime.datetime.now()))
 
 async def log_out(request, user_row):
     request['session'].pop('user')
@@ -141,7 +237,7 @@ def make_password(password):
     """
     return settings.PASSWORD_HASHER.hash(password)
 
-async def update_user(database=None, target_username='', **kwargs):
+async def update_user(database=None, target_username=None, target_user_id=None, **kwargs):
     """Update user. Accepts same optional kwargs as create_user + last_login.
     :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
     :param target_username: String. Username to search against.
@@ -159,6 +255,11 @@ async def update_user(database=None, target_username='', **kwargs):
     database = _database_key(database)
     if 'password' in kwargs:
         kwargs['password'] = make_password(kwargs['password'])
+    if not target_username and not target_user_id:
+        raise Exception('Must provide username or user_id to update')
     async with Connection(database) as con:
-        stmt = user.update().where(user.c.username==target_username).values(**kwargs)
+        if target_username:
+            stmt = user.update().where(user.c.username==target_username).values(**kwargs)
+        else:
+            stmt = user.update().where(user.c.id==target_user_id).values(**kwargs)
         await con.execute(stmt)

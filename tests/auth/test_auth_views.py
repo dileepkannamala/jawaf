@@ -1,8 +1,11 @@
+import datetime
+import hashlib
 import pytest
 import sqlalchemy as sa
 from jawaf.auth import users
-from jawaf.auth.tables import user
+from jawaf.auth.tables import user, user_password_reset
 from jawaf.db import get_engine
+from jawaf.utils.timezone import get_utc
 
 def _test_session_inject(test_client, session, keys):
     """The Sanic test client starts and stops the Sanic server for each request.
@@ -141,3 +144,23 @@ def test_password_change_wrong_user(test_project, waf, create_users):
     _test_session_inject(test_client, request['session'], ['user'])
     request, response = test_client.post('/auth/password_change/', data=change_form_data)
     assert response.status == 403
+
+def test_password_reset(test_project, waf, create_users):
+    """Test changing password via post."""
+    change_form_data = {
+        'username': 'test',
+        'new_password': 'wookies',
+    }
+    selector, verifier = users._generate_split_token()
+    token = '%s%s' % (selector.decode('utf-8'), verifier.decode('utf-8'))
+    with get_engine().connect() as con:
+        stmt = user_password_reset.insert().values(
+            user_id=1,
+            selector=str(selector),
+            verifier=hashlib.sha256(verifier).hexdigest(),
+            expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=3)),
+            )
+        con.execute(stmt)
+    encoded_user_id = users.encode_user_id(1)
+    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), data=change_form_data)
+    assert response.status == 200

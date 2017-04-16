@@ -27,3 +27,34 @@ def test_check_password_returns_false_on_mismatch():
     """Test password check when the passwords don't match."""
     encoded = users.make_password('test_pass')
     assert users.check_password('test_what', encoded) == False
+
+@pytest.mark.asyncio
+async def test_check_user_reset_access_split_token(test_project, waf):
+    await waf.create_database_pool('default')
+    token = await users.generate_reset_split_token(1)
+    verified = await users.check_user_reset_access('test', 1, token)
+    assert verified
+    await waf.close_database_pools()
+
+@pytest.mark.asyncio
+async def test_check_user_reset_access_split_token_bad_token(test_project, waf):
+    await waf.create_database_pool('default')
+    token = await users.generate_reset_split_token(1)
+    verified = await users.check_user_reset_access('test', 1, 'whatever')
+    assert not verified
+    await waf.close_database_pools()
+
+@pytest.mark.asyncio
+async def test_check_user_reset_access_split_token_bad_user_id(test_project, waf):
+    await waf.create_database_pool('default')
+    token = await users.generate_reset_split_token(1)
+    verified = await users.check_user_reset_access('test', 3, 'whatever')
+    assert not verified
+    await waf.close_database_pools()
+
+@pytest.mark.asyncio
+async def test_generate_password_reset_path(test_project, waf):
+    await waf.create_database_pool('default')
+    url = await users.generate_password_reset_path(1)
+    assert '/auth/password_reset/' in url
+    await waf.close_database_pools()

@@ -39,3 +39,11 @@ user_group = Table('auth_user_group', metadata,
     Column('group_id', Integer, ForeignKey('auth_group.id'), nullable=False),
     Column('user_id', Integer, ForeignKey('auth_user.id'), nullable=False),
     )
+
+user_password_reset = Table('auth_user_password_reset', metadata,
+    Column('id', Integer, primary_key=True),
+    Column('user_id', Integer, ForeignKey('auth_user.id'), nullable=False),
+    Column('selector', Text()),
+    Column('verifier', Text()),
+    Column('expires', DateTime(timezone=True)), 
+    )

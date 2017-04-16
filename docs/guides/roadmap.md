@@ -9,26 +9,17 @@ So be forewarned this could get quite flexible.
 
 ## To Do List Items
 
-### ORM
-    * Take a fresh look and evaluate if it makes sense to attempt SQLAlchemy ORM support.
-    * (Possible Lightweight ORM like layer?)
-    * Evaluate building a general internal API for CRUD and rows
-
 ### Auth
-    * reset password
     * Groups
     * Permissions
 
-### DB Support
-    * [Mysql](https://github.com/aio-libs/aiomysql)
-    * Some other db...
+### ORM
+    * General internal API for CRUD and rows - ORM Like Layer
 
-### Tests
-    * More tests!
-    * Evaluate using testing.postgresl and testing.mysqld
-    * Performance considerations
-    * Practical use cases
-    * Benchmarks?
+### Admin site
+    * Register Tables
+    * Basic CRUD API
+    * Audit Trail of Actions
 
 ### Forms & Validation
     * Django Style Forms?
@@ -38,17 +29,20 @@ So be forewarned this could get quite flexible.
     * SQLAlchemy migration tool (alembic?)
 
 ### Deploy/Run Options
+    * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
     * Docker Support?
     * ASGI Support?
-    * Gunicorn Support (via Sanic)
 
-### Admin site
-    * Register Tables
-    * Basic CRUD API
-    * Audit Trail of Actions
+### Tests
+    * More tests!
+    * Evaluate using testing.postgresl and testing.mysqld
+    * Performance considerations
+    * Practical use cases
+    * Benchmarks?
 
-### Self Documenting Endpoints
-    * Look into this?
+### DB Support
+    * [Mysql](https://github.com/aio-libs/aiomysql)
+    * Some other db...
 
 ### Messaging
     * [Kafka](https://github.com/aio-libs/aiokafka)?
