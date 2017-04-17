@@ -32,20 +32,18 @@ So be forewarned this could get quite flexible.
 
 ### Tests
     * More tests!
-    * Evaluate using testing.postgresl and testing.mysqld
-    * Performance considerations
-    * Practical use cases
-    * Benchmarks?
-
-### DB Support
-    * [Mysql](https://github.com/aio-libs/aiomysql)
-    * Some other db...
-
-### Messaging
-    * [Kafka](https://github.com/aio-libs/aiokafka)?
+    * Evaluate using testing.postgresl
 
 ### PyPi Release
     * Put this up on PyPi
 
 ### Roadmap
     * Transfer this all into a real roadmap with version numbers and tourist traps.
+
+## Unlikely (or Post 1.0)
+
+### DB Support
+    * [Mysql](https://github.com/aio-libs/aiomysql)
+
+### Messaging
+    * [Kafka](https://github.com/aio-libs/aiokafka)?

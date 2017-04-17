@@ -7,7 +7,7 @@
 
 A fast asynchronous web application framework.
 
-Read the [Documentation](http://jawaf.readthedocs.io) to get started.
+Read the [documentation](http://jawaf.readthedocs.io) to get started.
 
 Inspired by (and using some code/concepts from) [Django](https://www.djangoproject.com/) and the promise of [Sanic](https://github.com/channelcat/sanic).
 
@@ -38,10 +38,6 @@ The goal of this project is to provide much of what Django provides (convenience
 [asyncio_redis](https://github.com/jonathanslenders/asyncio-redis)
 
 [Redis](https://redis.io/)
-
-***Templating***
-
-[Mako](http://www.makotemplates.org/)
 
 ***Tests***
 
