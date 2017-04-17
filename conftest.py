@@ -57,7 +57,7 @@ def test_project():
     # Create auth tables
     from jawaf.db import create_tables
     create_tables(['jawaf.auth'], warn=False)
-    create_tables(['jawaf_example_app.app'], warn=False)
+    create_tables(['jawaf_example_app'], warn=False)
     yield True
     # Clean up
     postgresql.stop()

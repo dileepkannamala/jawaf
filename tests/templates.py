@@ -4,7 +4,7 @@ routes = [
     {'uri': '/login/', 'handler': login},
     {'uri': '/test_app/', 'include': 'test_app'},
     {'uri': '/auth/', 'include': 'jawaf.auth'},
-    {'uri': '/example_app/', 'include': 'jawaf_example_app.app'},
+    {'uri': '/example_app/', 'include': 'jawaf_example_app'},
 ]
 '''
 

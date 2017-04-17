@@ -65,25 +65,24 @@ We set up the directory structure as follows:
 
 ```python
 bananas/
-    app/
-        management/
-            commands/
-                peel_bananas.py
-        routes.py
-        tables.py
-        views.py
+    management/
+        commands/
+            peel_bananas.py
+    routes.py
+    tables.py
+    views.py
 ```
 
 The sub-directory is important, as the `.` character will let Jawaf know how to import this app.
 
-Including it is as simple as:
+Including it is as simple as adding it to INSTALLED_APPS:
 
 Editing `mysite/settings.py`
 
 ```python
-INSTALLED_APPS = [
+INSTALLED_PACKAGES = [
     'jawaf.auth',
-    'bananas.app',
+    'bananas',
     'polls',
 ]
 ```

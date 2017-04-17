@@ -2,7 +2,7 @@ import datetime
 from jawaf.db import get_engine
 from jawaf.conf import settings
 from jawaf.management.base import BaseCommand
-from jawaf_example_app.app.tables import question
+from jawaf_example_app.tables import question
 
 class Command(BaseCommand):
 

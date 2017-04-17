@@ -11,12 +11,13 @@ def create_tables(apps, warn=True):
     :param warn: Boolean. Warn before creating tables.
     """
     for app in apps:
-        if '.' in app:
-            try:
-                module = import_module('%s.tables' % app)
-            except ImportError:
-                module = None
-        else:
+        # First try to import the app as a package.
+        try:
+            module = import_module('%s.tables' % app)
+        except ImportError:
+            module = None
+        # If that didn't work, try importing it from the project.
+        if module == None:
             tables_file = os.path.join(settings.BASE_DIR, app, 'tables.py')
             tables_spec = importlib.util.spec_from_file_location('%s.tables' % app, tables_file)
             if not tables_spec:
@@ -24,24 +25,21 @@ def create_tables(apps, warn=True):
             else:
                 module = importlib.util.module_from_spec(tables_spec)
                 tables_spec.loader.exec_module(module)
-
         database_key = getattr(module, 'DATABASE', settings.DEFAULT_DATABASE_KEY)
         if not database_key in settings.DATABASES:
             raise Exception('Database "%s" not found for app %s' % (database_key, app))
         engine = get_engine(database_key)
-
         if module:
             for item in dir(module):
                 attr = getattr(module, item)
                 if type(attr) == Table:
                     if warn and engine.dialect.has_table(engine, attr):
                         print('Warning, table %s already exists!' % attr)
-                        # TODO: Optionall drop table
+                        # TODO: Optionally drop table
             if warn:
                 proceed = input('Create Tables (y/n)? ')
                 if proceed.lower() == 'n':
                     return
-
         print('Creating tables for app %s...' % app)        
         module.metadata.create_all(engine)
 

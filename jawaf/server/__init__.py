@@ -44,12 +44,14 @@ class Jawaf(object):
         :param base_path: String. Base path for the jawaf project.
         :param prefix: String. Prefix url path (for recursion) - passed in via include directives.
         """
-        if '.' in os.path.splitext(routes_import)[0]:
-            try:
+        try:
+            if routes_import[0] == '/':
+                module = import_module(os.path.splitext(routes_import)[0])
+            else:
                 module = import_module(routes_import)
-            except ImportError:
-                raise Exception('Error processing routes import: %s' % routes_import)
-        else:
+        except ImportError:
+            module = None
+        if module == None:
             routes_spec = importlib.util.spec_from_file_location('%s%s.routes' % (self.name, prefix), routes_import)
             if not routes_spec:
                 raise Exception('Error processing routes file: %s' % routes_import)
@@ -59,10 +61,11 @@ class Jawaf(object):
             if prefix:
                 route['uri'] = ''.join([prefix, route['uri']])
             if 'include' in route:
-                if '.' in route['include']:
+                try:
+                    import_module(route['include'])
                     # Treat as a package
                     self.add_routes('.'.join([route['include'], 'routes']), base_path=base_path, prefix=route['uri'])
-                else:
+                except ImportError:
                     # Treat as a relative path
                     self.add_routes(os.path.join(base_path, route['include'], 'routes.py'), base_path=base_path, prefix=route['uri'])
             elif 'websocket' in route and route['websocket'] == True:

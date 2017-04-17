@@ -7,7 +7,7 @@ setup(
     include_package_data=True,
     license='BSD',
     name='Jawaf Example App',
-    packages=['jawaf_example_app.app', 'jawaf_example_app.app.management.commands'],
+    packages=['jawaf_example_app', 'jawaf_example_app.management.commands'],
     version='0.0.0',
     zip_safe=False,
     )
