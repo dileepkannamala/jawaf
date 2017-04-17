@@ -224,10 +224,17 @@ async def generate_password_reset_path(user_id, database=None):
     return '/auth/password_reset/%s/%s/' % (encoded_user_id, token)
 
 async def log_in(request, user_row):
+    """Add the user to the session, update last_login.
+    :param request: Sanic request.
+    :param user_row: User SQLAlchmey result.
+    """
     request['session']['user'] = user_row
     await update_user(database=None, target_username=user_row.username, last_login=get_utc(datetime.datetime.now()))
 
-async def log_out(request, user_row):
+async def log_out(request):
+    """Remove the user from the session.
+    :param request: Sanic request.
+    """
     request['session'].pop('user')
 
 def make_password(password):

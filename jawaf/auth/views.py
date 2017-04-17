@@ -28,7 +28,7 @@ class LogoutView(HTTPMethodView):
     async def post(self, request):
         user_row = request['session'].get('user', None)
         if user_row:
-            await log_out(request, user_row)
+            await log_out(request)
             return json({'message': 'logout succeeded'}, status=200)
         return json({'message': 'not logged in'}, status=401)
 
