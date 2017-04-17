@@ -1,1 +1,1 @@
-asyncpgsa==0.9.0
+asyncpgsa==0.8.1
