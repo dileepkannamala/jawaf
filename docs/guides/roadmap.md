@@ -13,9 +13,6 @@ So be forewarned this could get quite flexible.
     * Groups
     * Permissions
 
-### ORM
-    * General internal API for CRUD and rows - ORM Like Layer
-
 ### Admin site
     * Register Tables
     * Basic CRUD API
