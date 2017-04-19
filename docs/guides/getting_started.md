@@ -1,5 +1,25 @@
 # Getting Started
 
+## Installing Jawaf
+
+Make sure you have python 3.6 or higher installed. Jawaf uses new syntax and libraries introduced in python 3.5 and 3.6, and will not work with earlier versions.
+
+Until Jawaf is published on PyPi, you will need to install manually:
+
+```bash
+cd path_to_jawaf/
+python3 -m pip install -r requirements.txt
+python3 setup.py install
+```
+
+If you are using an environment with only python3.6 installed, it will look more like this:
+
+```bash
+cd path_to_jawaf/
+pip install -r requirements.txt
+python setup.py install
+```
+
 ## Starting a Project
 
 Jawaf uses projects in a similar manner to Django. It is a collection of apps and settings representing a particular website or web application.
