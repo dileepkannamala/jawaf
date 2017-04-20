@@ -34,7 +34,7 @@ def test_login_post(test_project, waf, create_users):
         'password': 'admin_pass',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', data=form_data)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     assert 'user' in request['session']
     assert request['session']['user'].username == 'admin'
     assert response.status == 200
@@ -46,7 +46,7 @@ def test_login_post_no_password(test_project, waf, create_users):
         'password': '',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', data=form_data)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     assert 'user' not in request['session']
     assert response.status == 403
 
@@ -57,7 +57,7 @@ def test_login_post_wrong_password(test_project, waf, create_users):
         'password': 'puppies',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', data=form_data)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     assert 'user' not in request['session']
     assert response.status == 403
 
@@ -68,7 +68,7 @@ def test_login_post_wrong_user(test_project, waf, create_users):
         'password': 'admin_pass',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', data=form_data)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     assert 'user' not in request['session']
     assert response.status == 403
 
@@ -80,7 +80,7 @@ def test_login_required(test_project, waf, create_users):
         'next': '/',
     }
     test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', data=form_data)
+    request, response = test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     _test_session_inject(test_client, request['session'], ['user'])
     request, response = test_client.get('/test_app/protected/')
     assert 'Protected!' in response.text
@@ -103,9 +103,9 @@ def test_logout_post(test_project, waf, create_users):
         'next': '/',
     }
     test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', data=form_data)
+    request, response = test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
     _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/logout/')
+    request, response = test_client.post('/auth/logout/', headers=waf.default_headers)
     assert not 'user' in request['session']
     assert response.status == 200
 
@@ -122,9 +122,9 @@ def test_password_change(test_project, waf, create_users):
         'new_password': 'casual_pass2',
     }
     test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', data=login_form_data)
+    request, response = test_client.post('/auth/login/', json=login_form_data, headers=waf.default_headers)
     _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/password_change/', data=change_form_data)
+    request, response = test_client.post('/auth/password_change/', json=change_form_data, headers=waf.default_headers)
     assert response.status == 200
 
 def test_password_change_wrong_user(test_project, waf, create_users):
@@ -140,9 +140,9 @@ def test_password_change_wrong_user(test_project, waf, create_users):
         'new_password': 'casual_pass2',
     }
     test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', data=login_form_data)
+    request, response = test_client.post('/auth/login/', json=login_form_data, headers=waf.default_headers)
     _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/password_change/', data=change_form_data)
+    request, response = test_client.post('/auth/password_change/', json=change_form_data, headers=waf.default_headers)
     assert response.status == 403
 
 def test_password_reset(test_project, waf, create_users):
@@ -154,13 +154,16 @@ def test_password_reset(test_project, waf, create_users):
     selector, verifier = users._generate_split_token()
     token = '%s%s' % (selector.decode('utf-8'), verifier.decode('utf-8'))
     with get_engine().connect() as con:
+        query = sa.select('*').select_from(user)
+        row = con.execute(query).fetchone()
+        change_form_data['username'] = row.username
         stmt = user_password_reset.insert().values(
-            user_id=1,
+            user_id=row.id,
             selector=str(selector),
             verifier=hashlib.sha256(verifier).hexdigest(),
             expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=3)),
             )
         con.execute(stmt)
-    encoded_user_id = users.encode_user_id(1)
-    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), data=change_form_data)
+    encoded_user_id = users.encode_user_id(row.id)
+    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), json=change_form_data, headers=waf.default_headers)
     assert response.status == 200

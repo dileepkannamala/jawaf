@@ -1,19 +1,21 @@
 import os
-from mako.template import Template
 from sanic.response import json, text
 from sanic.views import HTTPMethodView
 from jawaf.auth.decorators import login_required
 from jawaf.auth.users import check_user, check_user_reset_access, decode_user_id, encode_user_id, \
     generate_reset_split_token, log_in, log_out, update_user
 from jawaf.conf import settings
+from jawaf.security import check_headers
 
 class LoginView(HTTPMethodView):
     """Endpoint to handle user login."""
     
     async def post(self, request):
-        username = request.form.get('username', '')
-        password = request.form.get('password', None)
-        next_url = request.form.get('next', None)
+        if not check_headers(request.headers):
+            return json({'message': 'access denied'}, status=403)
+        username = request.json.get('username', '')
+        password = request.json.get('password', None)
+        next_url = request.json.get('next', None)
         if password is None:
             return json({'message': 'no password'}, status=403)
         user_row = await check_user(username, password)
@@ -26,6 +28,8 @@ class LogoutView(HTTPMethodView):
     """Endpoint to handle user logout."""
 
     async def post(self, request):
+        if not check_headers(request.headers):
+            return json({'message': 'access denied'}, status=403)
         user_row = request['session'].get('user', None)
         if user_row:
             await log_out(request)
@@ -36,9 +40,11 @@ class PasswordChangeView(HTTPMethodView):
     """Endpoint to handle user password change."""
 
     async def post(self, request):
-        username = request.form.get('username', '')
-        old_password = request.form.get('old_password', None)
-        new_password = request.form.get('new_password', None)
+        if not check_headers(request.headers):
+            return json({'message': 'access denied'}, status=403)
+        username = request.json.get('username', '')
+        old_password = request.json.get('old_password', None)
+        new_password = request.json.get('new_password', None)
         user_row = await check_user(username, old_password)
         if not user_row:
             return json({'message': 'bad user data'}, status=403)
@@ -53,9 +59,11 @@ class PasswordResetView(HTTPMethodView):
     """Endpoint to handle user password reset."""
 
     async def post(self, request, user_id, token):
+        if not check_headers(request.headers):
+            return json({'message': 'access denied'}, status=403)
         user_id = decode_user_id(user_id)
-        username = request.form.get('username', None)
-        new_password = request.form.get('new_password', None)
+        username = request.json.get('username', None)
+        new_password = request.json.get('new_password', None)
         verified = await check_user_reset_access(username, user_id, token, database=None)
         if verified:            
             if new_password is None or username is None:

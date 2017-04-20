@@ -29,6 +29,7 @@ class Jawaf(object):
         self.add_routes(routes_import=os.path.join(settings.PROJECT_DIR, 'routes.py'), base_path=settings.BASE_DIR)
         self.init_databases()
         self.init_session()
+        self.init_apps()
 
     def add_route(self, *args, **options):
         """Wraps Sanic.add_route"""
@@ -102,6 +103,21 @@ class Jawaf(object):
         if not self._session_pool:
             self._session_pool = await asyncio_redis.Pool.create(**settings.SESSION)
         return self._session_pool
+
+    def init_apps(self):
+        """Run any initialization code inside an app"""
+        for app in settings.INSTALLED_APPS:
+            try:
+                module = import_module(app)
+            except ImportError:
+                app_import = os.path.join(settings.BASE_DIR, app)
+                app_spec = importlib.util.spec_from_file_location('app.%s' % app, app_import)
+                if app_spec:
+                    module = importlib.util.module_from_spec(app_spec)
+                    app_spec.loader.exec_module(module)
+            if module:
+                if hasattr(module, 'initialize'):
+                    module.initialize(self)
 
     def init_databases(self):
         """Initialize database connection pools from settings.py, 

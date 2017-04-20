@@ -29,5 +29,6 @@ from ${project_name}.views import LoginView
 
 routes = [
     {'uri': '/login/', 'handler': LoginView.as_view},
+    {'uri': '/admin/', 'include': 'jawaf.admin'},
     {'uri': '/auth/', 'include': 'jawaf.auth'},
 ]

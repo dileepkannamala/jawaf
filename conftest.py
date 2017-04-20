@@ -3,6 +3,7 @@ import pytest
 import os
 import pip
 import shutil
+import sanic
 from sqlalchemy import create_engine
 import sys
 import testing.postgresql
@@ -68,4 +69,9 @@ def test_project():
 def waf():
     """Create a Jawaf instance for test session."""
     import jawaf.server
-    return jawaf.server.Jawaf(testing=True)
+    instance = jawaf.server.Jawaf(testing=True)
+    instance.default_headers = {
+        'x-requested-with': 'XMLHttpRequest',
+        'origin': 'https://%s:%s/' % (sanic.testing.HOST, sanic.testing.PORT),
+    }
+    return instance

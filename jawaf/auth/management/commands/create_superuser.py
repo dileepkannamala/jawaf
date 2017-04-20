@@ -31,4 +31,4 @@ class Command(BaseCommand):
             password2 = getpass.getpass('Password (again): ')
             if not self._validate_password(password, password2):
                 password = None
-        create_user_from_engine(engine, username=username, password=password, email=email)
+        create_user_from_engine(engine, username=username, password=password, email=email, is_staff=True, is_superuser=True)

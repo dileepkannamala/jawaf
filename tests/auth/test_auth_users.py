@@ -31,23 +31,35 @@ def test_check_password_returns_false_on_mismatch():
 @pytest.mark.asyncio
 async def test_check_user_reset_access_split_token(test_project, waf):
     await waf.create_database_pool('default')
-    token = await users.generate_reset_split_token(1)
-    verified = await users.check_user_reset_access('test', 1, token)
+    async with Connection() as con:
+        query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='test')
+        row = await con.fetchrow(query)
+        user_id = row.id
+    token = await users.generate_reset_split_token(user_id)
+    verified = await users.check_user_reset_access('test', user_id, token)
     assert verified
     await waf.close_database_pools()
 
 @pytest.mark.asyncio
 async def test_check_user_reset_access_split_token_bad_token(test_project, waf):
     await waf.create_database_pool('default')
-    token = await users.generate_reset_split_token(1)
-    verified = await users.check_user_reset_access('test', 1, 'whatever')
+    async with Connection() as con:
+        query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='test')
+        row = await con.fetchrow(query)
+        user_id = row.id
+    token = await users.generate_reset_split_token(user_id)
+    verified = await users.check_user_reset_access('test', user_id, 'whatever')
     assert not verified
     await waf.close_database_pools()
 
 @pytest.mark.asyncio
 async def test_check_user_reset_access_split_token_bad_user_id(test_project, waf):
     await waf.create_database_pool('default')
-    token = await users.generate_reset_split_token(1)
+    async with Connection() as con:
+        query = sa.select('*').select_from(tables.user)
+        row = await con.fetchrow(query)
+        user_id = row.id
+    token = await users.generate_reset_split_token(user_id)
     verified = await users.check_user_reset_access('test', 3, 'whatever')
     assert not verified
     await waf.close_database_pools()
@@ -55,6 +67,10 @@ async def test_check_user_reset_access_split_token_bad_user_id(test_project, waf
 @pytest.mark.asyncio
 async def test_generate_password_reset_path(test_project, waf):
     await waf.create_database_pool('default')
-    url = await users.generate_password_reset_path(1)
+    async with Connection() as con:
+        query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='test')
+        row = await con.fetchrow(query)
+        user_id = row.id
+    url = await users.generate_password_reset_path(user_id)
     assert '/auth/password_reset/' in url
     await waf.close_database_pools()

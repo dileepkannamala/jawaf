@@ -21,6 +21,7 @@ SECRET_KEY = '${secret_key}'
 DEBUG = True
 
 INSTALLED_APPS = [
+    'jawaf.admin',
     'jawaf.auth',
 ]
 
