@@ -1,4 +1,4 @@
-# Admin Site
+# Admin API
 
 ## Introduction
 
