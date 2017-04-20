@@ -2,60 +2,68 @@
 
 ## Intro
 
-This "roadmap" is functioning more as a very informal unordered TODO list. Not everything on this list will be implemented, and some items not on this list might be implemented. The journey to 1.0 will invite decisions which could alter the behavior and structure of Jawaf.
+Not everything on this list will be implemented, and some items not on this list might be implemented. The journey to 1.0 will invite decisions which could alter the behavior and structure of Jawaf. So be forewarned this could get quite flexible.
 
-So be forewarned this could get quite flexible.
+This is divided into sections:
 
+`Road to 1.0` is the more or less official list of upcoming releases (including the first release to PyPi).
 
-## To Do List Items
+`Unversioned ToDo List` is a list of things that may or may not make it into the semi-official roadmap.
 
-### Auth
+`Unlikely` is a list of itmes that have been evaluated and won't likely make it into the core for 1.0 (unless there's a real desire for those features).
+
+## Road to 1.0
+
+### 0.1.0
+
+#### Security
+    * CSRF Token in addition to host/origin + custom header?
+
+#### Auth
     * Groups
     * Permissions
 
-### Admin site
+#### Admin site
     * User + Permission Checks for Admin Site
     * Search API
     * Audit Trail of Actions
 
-### Forms & Validation
+#### Email
+    * Basic email support?
+
+#### PyPi Release
+    * Put this up on PyPi
+
+### 0.2.0
+
+#### Migration
+    * SQLAlchemy migration tool (alembic?)
+
+#### Forms & Validation
     * Django Style Forms?
     * Validation (separated from Forms)
 
-### Migration
-    * SQLAlchemy migration tool (alembic?)
+## Unversioned ToDo List
 
 ### Deploy/Run Options
     * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
     * Docker Support?
     * ASGI Support?
 
-### DB
+#### DB
     * Support optionally using pooling?
 
-### Email
-    * Basic email support?
+#### Tests
+    * More tests
+    * testing.postgresl instead of actual postgres as an option
 
-### Security
-    * CSRF Token in addition to host/origin + custom header?
-
-### Tests
-    * More tests!
-    * Evaluate using testing.postgresl
-
-### PyPi Release
-    * Put this up on PyPi
-
-### Misc
+#### Misc
     * Consider adding Jawaf instance to Request middleware
 
-### Roadmap
-    * Transfer this all into a real roadmap with version numbers and tourist traps.
+## Unlikely
 
-## Unlikely (or Post 1.0)
-
-### DB Support
+#### DB Support
     * [Mysql](https://github.com/aio-libs/aiomysql)
 
-### Messaging
+#### Messaging
     * [Kafka](https://github.com/aio-libs/aiokafka)?
