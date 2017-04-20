@@ -25,7 +25,7 @@ send_reset_email(reset_url='https://%s/%s' % (site_base_url, reset_path))
 
 Then you'd need to handle a `POST` to that url. Let's say it's to `https://example.com/auth/password_reset/MQ==/2VvJH0hCCfN8cQ7ozGcWpbvL4FpzUfvuY7x3RIB7BaHB0APLjOmyzeqr/`
 
-Then a `POST` to that url with `username` and `new_password` in the form_data will validate against the username and the url to ensure the username being edited is the same as the one granted temporary access by the url. If verified, the user's password will be changed and the link invalidated for further use.
+Then a `POST` to that url with `username` and `new_password` in the posted json data will validate against the username and the url to ensure the username being edited is the same as the one granted temporary access by the url. If verified, the user's password will be changed and the link invalidated for further use.
 
 Password reset links, when generated, will expire in a default of 3 hours (override in settings.py) or when accessed once.
 

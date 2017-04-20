@@ -97,6 +97,18 @@ routes = [
 ]
 ```
 
+You can also run custom initialization code when Jawaf loads:
+
+Editing `bananas/__init__.py`
+
+```python
+
+# Code that defines a Banana class
+
+def initialize(waf):
+    waf.banana = Banana()
+```
+
 ## Connecting to Multiple Databases
 
 Viewing `settings.py`:

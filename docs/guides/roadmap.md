@@ -14,8 +14,8 @@ So be forewarned this could get quite flexible.
     * Permissions
 
 ### Admin site
-    * Register Tables
-    * Basic CRUD API
+    * User + Permission Checks for Admin Site
+    * Search API
     * Audit Trail of Actions
 
 ### Forms & Validation
@@ -30,12 +30,24 @@ So be forewarned this could get quite flexible.
     * Docker Support?
     * ASGI Support?
 
+### DB
+    * Support optionally using pooling?
+
+### Email
+    * Basic email support?
+
+### Security
+    * CSRF Token in addition to host/origin + custom header?
+
 ### Tests
     * More tests!
     * Evaluate using testing.postgresl
 
 ### PyPi Release
     * Put this up on PyPi
+
+### Misc
+    * Consider adding Jawaf instance to Request middleware
 
 ### Roadmap
     * Transfer this all into a real roadmap with version numbers and tourist traps.

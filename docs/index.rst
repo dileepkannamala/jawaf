@@ -16,6 +16,7 @@ Guides
 
    guides/getting_started
    guides/authentication
+   guides/admin_site
    guides/advanced_notes
    guides/roadmap
 
