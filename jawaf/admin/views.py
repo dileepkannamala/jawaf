@@ -6,14 +6,14 @@ from jawaf.admin import registry
 from jawaf.auth.decorators import login_required
 from jawaf.conf import settings
 from jawaf.db import Connection
-from jawaf.security import check_headers
+from jawaf.security import check_csrf
 from jawaf.server import get_jawaf
 
 class DataView(HTTPMethodView):
     """Endpoint to handle table CRUD."""
     
     async def delete(self, request, table_name):
-        if not check_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
         table = registry.get(table_name)
@@ -40,7 +40,7 @@ class DataView(HTTPMethodView):
         return json({'message': 'access denied'}, status=403)
     
     async def post(self, request, table_name):
-        if not check_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
         table = registry.get(table_name)
@@ -51,7 +51,7 @@ class DataView(HTTPMethodView):
         return json({'message': 'access denied'}, status=403)
     
     async def put(self, request, table_name):
-        if not check_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
         table = registry.get(table_name)

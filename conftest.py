@@ -42,13 +42,15 @@ def test_project():
     os.environ.setdefault('JAWAF_SETTINGS_MODULE', '%s.%s.%s.settings' % (test_dir, test_project, test_project))
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
-    from jawaf import conf, db, management, server
+    from jawaf import conf, db, management, security, server, utils
     from jawaf.auth import users
     reload(conf)
     reload(db)
     reload(management)
+    reload(security)
     reload(server)
     reload(users)
+    reload(utils)
     from jawaf.conf import settings
     p_dsn = postgresql.dsn()
     settings['DATABASES']['default']['database'] = p_dsn['database']
@@ -69,9 +71,4 @@ def test_project():
 def waf():
     """Create a Jawaf instance for test session."""
     import jawaf.server
-    instance = jawaf.server.Jawaf(testing=True)
-    instance.default_headers = {
-        'x-requested-with': 'XMLHttpRequest',
-        'origin': 'https://%s:%s/' % (sanic.testing.HOST, sanic.testing.PORT),
-    }
-    return instance
+    return jawaf.server.Jawaf(testing=True)

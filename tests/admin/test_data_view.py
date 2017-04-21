@@ -1,34 +1,51 @@
 import pytest
 import sqlalchemy as sa
 from jawaf.auth import tables, users
+from jawaf.conf import settings
 from jawaf.db import get_engine
+from jawaf.utils import testing
 
-def create_admin_test_user(name):
+def create_admin_test_data_user(name, password='admin_pass_test'):
     """Create test users."""
     engine = get_engine('default')
-    users.create_user_from_engine(engine, username=name, password='admin_pass_test')
+    users.create_user_from_engine(engine, username=name, password=password)
     with engine.connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username==name)
-        row = con.execute(query)
-        user_id = row.fetchone().id
-    return user_id
+        results = con.execute(query)
+        user_row = results.fetchone()
+    return user_row.id, user_row.username, password
 
-def test_data_delete(test_project, waf):
+@pytest.fixture(scope='module')
+def admin_login_user():
+    engine = get_engine('default')
+    username='admin_api_test'
+    password='admin_api_pass'
+    users.create_user_from_engine(engine, username=username, password=password, is_staff=True, is_superuser=True)
+    with engine.connect() as con:
+        query = sa.select('*').select_from(tables.user).where(tables.user.c.username==username)
+        results = con.execute(query)
+        user_row = results.fetchone()
+    return user_row.id, user_row.username, password
+
+
+def test_data_delete(test_project, waf, admin_login_user):
     """Test posting a new user"""
-    user_id = create_admin_test_user('admin_test_delete')
+    user_id, username, password = create_admin_test_data_user('admin_test_delete')
     form_data = {
         'id': user_id,
     }
-    request, response = waf.server.test_client.delete('/admin/user/', json=form_data, headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    request, response = waf.server.test_client.delete('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     assert response.status == 200
 
-def test_data_get(test_project, waf):
+def test_data_get(test_project, waf, admin_login_user):
     """Test posting a new user"""
-    user_id = create_admin_test_user('admin_test_get')
-    request, response = waf.server.test_client.get('/admin/user/?id=%s' % user_id, headers=waf.default_headers)
+    user_id, username, password = create_admin_test_data_user('admin_test_get')
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    request, response = waf.server.test_client.get('/admin/user/?id=%s' % user_id, headers=testing.csrf_headers(request))
     assert response.status == 200
 
-def test_data_post(test_project, waf):
+def test_data_post(test_project, waf, admin_login_user):
     """Test posting a new user"""
     form_data = {
         'username': 'cool',
@@ -36,18 +53,32 @@ def test_data_post(test_project, waf):
         'is_active': True,
         'is_staff': True,
     }
-    request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     assert response.status == 201
 
-def test_data_put(test_project, waf):
+def test_data_post_no_csrf(test_project, waf, admin_login_user):
     """Test posting a new user"""
-    user_id = create_admin_test_user('admin_test_put')
+    form_data = {
+        'username': 'cool',
+        'password': 'cool_pass',
+        'is_active': True,
+        'is_staff': True,
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers())
+    assert response.status == 403
+
+def test_data_put(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_put')
     form_data = {
         'id': user_id,
         'username': 'new',
         'password': 'new_pass',
     }
-    request, response = waf.server.test_client.put('/admin/user/', json=form_data, headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    request, response = waf.server.test_client.put('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     assert response.status == 200
     with get_engine('default').connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.id==user_id)

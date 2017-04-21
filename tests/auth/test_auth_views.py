@@ -6,19 +6,7 @@ from jawaf.auth import users
 from jawaf.auth.tables import user, user_password_reset
 from jawaf.db import get_engine
 from jawaf.utils.timezone import get_utc
-
-def _test_session_inject(test_client, session, keys):
-    """The Sanic test client starts and stops the Sanic server for each request.
-    Inject the specified keys from the session into the test client's middleware to persist it!
-    This let's you log in with one request then access a protected view with another.
-    :param test_client: Sanic Test Client instance.
-    :param session: sanic_session Session instance.
-    :param keys: list. Keys from a previous session to inject into the new session.
-    """
-    @test_client.app.middleware('request')
-    async def add_session_to_request(request):
-        for key in keys:
-            request['session'][key] = session[key]
+from jawaf.utils import testing
 
 @pytest.fixture(scope='module')
 def create_users():
@@ -34,10 +22,11 @@ def test_login_post(test_project, waf, create_users):
         'password': 'admin_pass',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=testing.csrf_headers())
     assert 'user' in request['session']
     assert request['session']['user'].username == 'admin'
     assert response.status == 200
+    testing.simulate_logout(waf, 'admin')
 
 def test_login_post_no_password(test_project, waf, create_users):
     """Test logging in via post without a password."""
@@ -46,7 +35,7 @@ def test_login_post_no_password(test_project, waf, create_users):
         'password': '',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=testing.csrf_headers())
     assert 'user' not in request['session']
     assert response.status == 403
 
@@ -57,7 +46,7 @@ def test_login_post_wrong_password(test_project, waf, create_users):
         'password': 'puppies',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=testing.csrf_headers())
     assert 'user' not in request['session']
     assert response.status == 403
 
@@ -68,29 +57,21 @@ def test_login_post_wrong_user(test_project, waf, create_users):
         'password': 'admin_pass',
         'next': '/',
     }
-    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers=testing.csrf_headers())
     assert 'user' not in request['session']
     assert response.status == 403
 
 def test_login_required(test_project, waf, create_users):
     """Test accessing a view behind the login_required decorator while logged in."""
-    form_data = {
-        'username': 'admin',
-        'password': 'admin_pass',
-        'next': '/',
-    }
-    test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
-    _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.get('/test_app/protected/')
+    request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
+    request, response = waf.server.test_client.get('/test_app/protected/')
     assert 'Protected!' in response.text
     assert response.status == 200
+    testing.simulate_logout(waf, 'admin')
 
 def test_login_required_not_logged_in(test_project, waf, create_users):
     """Test accessing a view behind the login_required decorator while not logged in."""
-    test_client = waf.server.test_client
-    _test_session_inject(test_client, {'user': None}, ['user']) # Ensure user isn't logged in via testing artifact.
-    request, response = test_client.get('/test_app/protected/')
+    request, response = waf.server.test_client.get('/test_app/protected/')
     assert 'Protected!' not in response.text
     assert 'login' in response.text
     assert response.status == 200
@@ -102,47 +83,32 @@ def test_logout_post(test_project, waf, create_users):
         'password': 'admin_pass',
         'next': '/',
     }
-    test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', json=form_data, headers=waf.default_headers)
-    _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/logout/', headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
+    request, response = waf.server.test_client.post('/auth/logout/', headers=testing.csrf_headers())
     assert not 'user' in request['session']
     assert response.status == 200
 
 def test_password_change(test_project, waf, create_users):
     """Test changing password via post."""
-    login_form_data = {
-        'username': 'casual_user',
-        'password': 'casual_pass',
-        'next': '/',
-    }
     change_form_data = {
         'username': 'casual_user',
         'old_password': 'casual_pass',
         'new_password': 'casual_pass2',
     }
-    test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', json=login_form_data, headers=waf.default_headers)
-    _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/password_change/', json=change_form_data, headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass')
+    request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
     assert response.status == 200
+    testing.simulate_logout(waf, 'casual_user')
 
 def test_password_change_wrong_user(test_project, waf, create_users):
     """Test changing password for another user via post."""
-    login_form_data = {
-        'username': 'casual_user',
-        'password': 'casual_pass',
-        'next': '/',
-    }
     change_form_data = {
         'username': 'admin',
         'old_password': 'admin_pass',
         'new_password': 'casual_pass2',
     }
-    test_client = waf.server.test_client
-    request, response = test_client.post('/auth/login/', json=login_form_data, headers=waf.default_headers)
-    _test_session_inject(test_client, request['session'], ['user'])
-    request, response = test_client.post('/auth/password_change/', json=change_form_data, headers=waf.default_headers)
+    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass')
+    request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
     assert response.status == 403
 
 def test_password_reset(test_project, waf, create_users):
@@ -165,5 +131,5 @@ def test_password_reset(test_project, waf, create_users):
             )
         con.execute(stmt)
     encoded_user_id = users.encode_user_id(row.id)
-    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), json=change_form_data, headers=waf.default_headers)
+    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), json=change_form_data, headers=testing.csrf_headers())
     assert response.status == 200

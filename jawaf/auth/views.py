@@ -5,13 +5,13 @@ from jawaf.auth.decorators import login_required
 from jawaf.auth.users import check_user, check_user_reset_access, decode_user_id, encode_user_id, \
     generate_reset_split_token, log_in, log_out, update_user
 from jawaf.conf import settings
-from jawaf.security import check_headers
+from jawaf.security import check_csrf, check_csrf_headers
 
 class LoginView(HTTPMethodView):
     """Endpoint to handle user login."""
     
     async def post(self, request):
-        if not check_headers(request.headers):
+        if not check_csrf_headers(request.headers):
             return json({'message': 'access denied'}, status=403)
         username = request.json.get('username', '')
         password = request.json.get('password', None)
@@ -28,7 +28,7 @@ class LogoutView(HTTPMethodView):
     """Endpoint to handle user logout."""
 
     async def post(self, request):
-        if not check_headers(request.headers):
+        if not check_csrf_headers(request.headers):
             return json({'message': 'access denied'}, status=403)
         user_row = request['session'].get('user', None)
         if user_row:
@@ -40,7 +40,7 @@ class PasswordChangeView(HTTPMethodView):
     """Endpoint to handle user password change."""
 
     async def post(self, request):
-        if not check_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         username = request.json.get('username', '')
         old_password = request.json.get('old_password', None)
@@ -59,7 +59,7 @@ class PasswordResetView(HTTPMethodView):
     """Endpoint to handle user password reset."""
 
     async def post(self, request, user_id, token):
-        if not check_headers(request.headers):
+        if not check_csrf_headers(request.headers):
             return json({'message': 'access denied'}, status=403)
         user_id = decode_user_id(user_id)
         username = request.json.get('username', None)

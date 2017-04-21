@@ -7,6 +7,7 @@ import sqlalchemy as sa
 from jawaf.auth.tables import user, user_password_reset
 from jawaf.conf import settings
 from jawaf.db import Connection
+from jawaf.security import generate_csrf_token
 from jawaf.utils.timezone import get_utc
 
 SELECTOR_ENCODED_LENGTH = 24
@@ -228,14 +229,17 @@ async def log_in(request, user_row):
     :param request: Sanic request.
     :param user_row: User SQLAlchmey result.
     """
+    last_login = get_utc(datetime.datetime.now())
     request['session']['user'] = user_row
-    await update_user(database=None, target_username=user_row.username, last_login=get_utc(datetime.datetime.now()))
+    request['session']['csrf_token'] = generate_csrf_token(user_row.id, user_row.last_login)
+    await update_user(database=None, target_username=user_row.username, last_login=last_login)
 
 async def log_out(request):
     """Remove the user from the session.
     :param request: Sanic request.
     """
     request['session'].pop('user')
+    request['session'].pop('csrf_token')
 
 def make_password(password):
     """Encode the password using Password Hasher from settings.
