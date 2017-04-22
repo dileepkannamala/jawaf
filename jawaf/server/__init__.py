@@ -5,6 +5,7 @@ import os
 from sanic import Blueprint, Sanic
 from sanic_session import InMemorySessionInterface, RedisSessionInterface
 from jawaf.conf import settings
+from jawaf.security import generate_csrf_token
 
 # Active instance of Jawaf (singleton)
 _active_instance = None
@@ -151,6 +152,7 @@ class Jawaf(object):
         @self.server.middleware('request')
         async def add_session_to_request(request):
             await self._session_interface.open(request)
+            request['session']['csrf_token'] = 'test_token' if self.testing else generate_csrf_token()
         @self.server.middleware('response')
         async def save_session(request, response):
             await self._session_interface.save(request, response)

@@ -7,7 +7,8 @@ $(document).ready(function(){
         var data = {
             'username': $('#username').val(),
             'password': $('#password').val(),
-            'next': '${next}'
+            'next': '${next}',
+            'csrf_token': '${csrf_token}'
         }
         $.ajax({
             url: '/auth/login/',

@@ -16,9 +16,6 @@ This is divided into sections:
 
 ### 0.1.0
 
-#### Security
-    * CSRF Token in addition to host/origin + custom header?
-
 #### Auth
     * Groups
     * Permissions

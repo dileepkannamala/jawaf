@@ -1,18 +1,21 @@
 import sanic.testing
 from jawaf.conf import settings
-# General util functions for testing.
 
 def csrf_headers(request=None):
-    csrf_token = request['session'].get('csrf_token', None) if request else None
+    """Get the CSRF protection headers to pass into a test HTTP request.
+    :param request: Sanic Request instance.
+    :return: Dict. Headers.
+    """
     headers = {
         'x-requested-with': 'XMLHttpRequest',
         'origin': 'https://%s:%s/' % (sanic.testing.HOST, sanic.testing.PORT),
     }
+    csrf_token = request['session'].get('csrf_token', None) if request else 'test_token'
     if csrf_token:
         headers[settings.CSRF_HEADER_NAME] = csrf_token
     return headers
 
-def simulate_login(waf, username, password, next='/'):
+def simulate_login(waf, username, password, next_path='/'):
     """Simulate a login using the provided username and password.
     :param waf: Jawaf instance.
     :param username: String. Username.
@@ -23,20 +26,23 @@ def simulate_login(waf, username, password, next='/'):
     login_form_data = {
         'username': username,
         'password': password,
-        'next': next,
+        'next': next_path,
     }
     request, response = waf.server.test_client.post('/auth/login/', json=login_form_data, headers=csrf_headers())
-    test_session_inject(waf, request['session'], ['user', 'csrf_token'])
     return request, response
 
-def simulate_logout(waf, username):
-    request, response = waf.server.test_client.post('/auth/logout/', json={'username': username}, headers=csrf_headers())
-    test_session_inject(waf, {'user': None, 'csrf_token': None}, ['user', 'csrf_token'])
+def injected_session_end(waf, injected_session_middleware):
+    """Remove the middleware so they don't keep piling up.
+    :param waf: Jawaf instance.
+    :param injected_session_middleware: Middelware method to remove.
+    """
+    waf.server.request_middleware.remove(injected_session_middleware)
 
 def test_session_inject(waf, session, keys):
     """The Sanic test client starts and stops the Sanic server for each request.
-    Inject the specified keys from the session into the test client's middleware to persist it!
+    Inject the specified keys from the session into the test client's next request via middleware!
     This let's you log in with one request then access a protected view with another.
+    Just be sure to call injected_session_end afterwards to clean up.
     :param waf: Jawaf Instance.
     :param session: sanic_session Session instance.
     :param keys: list. Keys from a previous session to inject into the new session.
@@ -46,7 +52,9 @@ def test_session_inject(waf, session, keys):
         for key in keys:
             if key in session:
                 if session[key] is None:
-                    request['session'].pop(key)
+                    if key in request['session']:
+                        request['session'].pop(key)
                 else:
                     request['session'][key] = session[key]
+    return add_session_to_request
 

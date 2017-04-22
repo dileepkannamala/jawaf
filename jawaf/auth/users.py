@@ -239,7 +239,7 @@ async def log_out(request):
     :param request: Sanic request.
     """
     request['session'].pop('user')
-    request['session'].pop('csrf_token')
+    request['session']['csrf_token'] = generate_csrf_token()
 
 def make_password(password):
     """Encode the password using Password Hasher from settings.

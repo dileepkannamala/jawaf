@@ -26,7 +26,6 @@ def test_login_post(test_project, waf, create_users):
     assert 'user' in request['session']
     assert request['session']['user'].username == 'admin'
     assert response.status == 200
-    testing.simulate_logout(waf, 'admin')
 
 def test_login_post_no_password(test_project, waf, create_users):
     """Test logging in via post without a password."""
@@ -64,10 +63,11 @@ def test_login_post_wrong_user(test_project, waf, create_users):
 def test_login_required(test_project, waf, create_users):
     """Test accessing a view behind the login_required decorator while logged in."""
     request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
+    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
     request, response = waf.server.test_client.get('/test_app/protected/')
+    testing.injected_session_end(waf, middleware)
     assert 'Protected!' in response.text
     assert response.status == 200
-    testing.simulate_logout(waf, 'admin')
 
 def test_login_required_not_logged_in(test_project, waf, create_users):
     """Test accessing a view behind the login_required decorator while not logged in."""
@@ -84,7 +84,9 @@ def test_logout_post(test_project, waf, create_users):
         'next': '/',
     }
     request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
-    request, response = waf.server.test_client.post('/auth/logout/', headers=testing.csrf_headers())
+    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    request, response = waf.server.test_client.post('/auth/logout/', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
     assert not 'user' in request['session']
     assert response.status == 200
 
@@ -96,9 +98,10 @@ def test_password_change(test_project, waf, create_users):
         'new_password': 'casual_pass2',
     }
     request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass')
+    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
     request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
     assert response.status == 200
-    testing.simulate_logout(waf, 'casual_user')
 
 def test_password_change_wrong_user(test_project, waf, create_users):
     """Test changing password for another user via post."""
@@ -107,8 +110,10 @@ def test_password_change_wrong_user(test_project, waf, create_users):
         'old_password': 'admin_pass',
         'new_password': 'casual_pass2',
     }
-    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass')
+    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass2')
+    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
     request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
     assert response.status == 403
 
 def test_password_reset(test_project, waf, create_users):

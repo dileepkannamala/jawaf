@@ -11,7 +11,7 @@ class LoginView(HTTPMethodView):
     """Endpoint to handle user login."""
     
     async def post(self, request):
-        if not check_csrf_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         username = request.json.get('username', '')
         password = request.json.get('password', None)
@@ -28,7 +28,7 @@ class LogoutView(HTTPMethodView):
     """Endpoint to handle user logout."""
 
     async def post(self, request):
-        if not check_csrf_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         user_row = request['session'].get('user', None)
         if user_row:

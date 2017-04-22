@@ -42,9 +42,9 @@ settings['INSTALLED_APPS'] = []
 
 settings['WORKERS'] = 1
 
-settings['CSRF_FIELD_NAME'] = 'csrftoken'
+settings['CSRF_FIELD_NAME'] = 'csrf_token'
 
-settings['CSRF_HEADER_NAME'] = 'X-CSRFToken'
+settings['CSRF_HEADER_NAME'] = 'X-CSRF-TOKEN'
 
 settings['PASSWORD_HASHER'] = PasswordHasher(hash_len=24, salt_len=16)
 

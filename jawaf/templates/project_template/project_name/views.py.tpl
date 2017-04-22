@@ -7,5 +7,8 @@ template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 
 class LoginView(HTTPMethodView):
     async def get(self, request):
-        next_url = request.raw_args.get('next', '')
-        return html(Template(filename=os.path.join(template_dir, 'login.html')).render(next=next_url))
+        context = {
+            'csrf_token': request['session']['csrf_token'],
+            'next': request.raw_args.get('next', ''),
+        }
+        return html(Template(filename=os.path.join(template_dir, 'login.html')).render(**context))

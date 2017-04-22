@@ -88,7 +88,7 @@ class TemplateCommand(BaseCommand):
     def __init__(self):
         """Initialize command with general purpose variables such as 'version'."""
         super(BaseCommand, self).__init__()
-        self.variables = {'version': __version__, 'next': '${next}'}
+        self.variables = {'version': __version__, 'next': '${next}', 'csrf_token': '${csrf_token}'}
 
     def add_arguments(self, parser):
         """ArgParse add_arguments override to add `name` and `directory` options.

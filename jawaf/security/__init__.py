@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import re
+import secrets
 from jawaf.conf import settings
 
 RE_STRIP_HTTPS = re.compile('http[s]{0,1}\:\/\/')
@@ -29,8 +30,6 @@ def check_csrf(request):
     """
     if not check_csrf_headers(request.headers):
         return False
-    if not 'csrf_token' in request['session']:
-        return False
     # First see if the token is in the headers:
     token = request.headers.get(settings.CSRF_HEADER_NAME, None)
     if not token:
@@ -39,12 +38,15 @@ def check_csrf(request):
             return False
     return token == request['session']['csrf_token']
 
-def generate_csrf_token(user_id, user_last_login):
-    """Generate csrf token from user id and user last login.
+def generate_csrf_token(user_id=None, user_last_login=None):
+    """Generate csrf token from user id and user last login, or a random token if not logged in.
     :param user_id: Int. User id.
     :param user_last_login: Datetime. Last login datetime.
     :return: String. Token.
-    """    
-    message = bytearray('%s|%s' % (user_id, str(user_last_login)), 'utf-8')
+    """ 
+    if user_id and user_last_login:
+        message = bytearray('%s|%s' % (user_id, str(user_last_login)), 'utf-8')
+    else:
+        message = secrets.token_bytes(24)
     secret = bytearray(settings.SECRET_KEY, 'utf-8')
     return hmac.new(secret, msg=message, digestmod=hashlib.sha256).hexdigest()

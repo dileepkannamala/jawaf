@@ -146,3 +146,24 @@ async def show(request):
         # SQLAlchemy/db calls here will reference the 'external' database
     return # combined data
 ```
+
+## CSRF Protection
+
+Jawaf provides CSRF Protection using the [OWasp CSRF Cheat Sheet](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet) as a reference.
+
+For the auth and admin apps, interaction is via RESTful services which expect:
+
+### Headers
+
+The `X-Requested-With: XMLHttpRequest` header must be present with the correct value. The `host` and `origin` headers must match as well.
+
+### CSRF Token
+
+A random csrf token is used for each session. This token is altered on login, and again on logout.
+It can either be present in a json field (`settings.CSRF_FIELD_NAME` controls the name, `csrf_token` by default), or in a header (`settings.CSRF_HEADER_NAME`, `X-CSRF-TOKEN` by default).
+
+It can be accessed via the session:
+
+```python
+request['session']['csrf_token']
+```

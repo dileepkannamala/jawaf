@@ -45,15 +45,17 @@ The goal of this project is to provide much of what Django provides (convenience
 
 **Features**
 
-* Built on an async stack to run fast and scale.
-* Built in support for:
-    * Database interaction via SQLAlchemy Core
-    * Sessions via sanic_session and Redis
-    * Unit testing via py.test
-    * Django style management commands and project/app scaffolding
-    * Interactive shell (using ipython or bpython if either are detected)
-    * User Authentication, Groups & Permissions built in
-    * Optional admin api
+* Built on an async stack (Sanic) to run fast and scale.
+* Database interaction via SQLAlchemy Core
+* Sessions via sanic_session and Redis
+* Unit testing via py.test
+* Django style management commands
+* Django style project/app scaffolding
+* Extensible using structured python packages as apps
+* CSRF protection baked in
+* Interactive shell (using ipython or bpython if either are detected)
+* User Authentication, Groups & Permissions built in
+* Optional Admin API
 
 Note: Many of the software requirements are in beta, alpha, or even pre-alpha status.
 You'd be well advised to have a long hard think about using this in production.
