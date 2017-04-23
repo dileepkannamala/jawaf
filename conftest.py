@@ -43,14 +43,15 @@ def test_project():
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
     from jawaf import conf, db, management, security, server, utils
-    from jawaf.auth import users
+    import jawaf.auth
     reload(conf)
     reload(db)
     reload(management)
     reload(security)
     reload(server)
-    reload(users)
     reload(utils)
+    reload(jawaf.auth.users)
+    reload(jawaf.auth.utils)
     from jawaf.conf import settings
     p_dsn = postgresql.dsn()
     settings['DATABASES']['default']['database'] = p_dsn['database']

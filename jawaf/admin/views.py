@@ -3,7 +3,7 @@ from sanic.response import json, text
 from sanic.views import HTTPMethodView
 import sqlalchemy as sa
 from jawaf.admin import registry
-from jawaf.auth.decorators import login_required
+from jawaf.auth.decorators import has_permission
 from jawaf.conf import settings
 from jawaf.db import Connection
 from jawaf.security import check_csrf
@@ -12,7 +12,7 @@ from jawaf.server import get_jawaf
 class DataView(HTTPMethodView):
     """Endpoint to handle table CRUD."""
     
-    @login_required()
+    @has_permission(name='delete', target='admin')
     async def delete(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
@@ -27,7 +27,7 @@ class DataView(HTTPMethodView):
             return json({'message': 'success'}, status=200)
         return json({'message': 'access denied'}, status=403)
     
-    @login_required()
+    @has_permission(name='get', target='admin')
     async def get(self, request, table_name=None):
         waf = get_jawaf()
         table = registry.get(table_name)
@@ -41,7 +41,7 @@ class DataView(HTTPMethodView):
             return json({'message': 'success', 'data': result}, status=200)
         return json({'message': 'access denied'}, status=403)
     
-    @login_required()
+    @has_permission(name='post', target='admin')
     async def post(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
@@ -53,7 +53,7 @@ class DataView(HTTPMethodView):
             return json({'message': 'success'}, status=201)
         return json({'message': 'access denied'}, status=403)
     
-    @login_required()
+    @has_permission(name='put', target='admin')
     async def put(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
@@ -72,7 +72,7 @@ class DataView(HTTPMethodView):
 class SearchView(HTTPMethodView):
     """Endpoint to handle searching table data."""
 
-    @login_required()
+    @has_permission(name='search.get', target='admin')
     async def get(self, request, table_name=None):
         #TODO: Implement This
         return json({'message': 'no data', 'results': ''}, status=401)

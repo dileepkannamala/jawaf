@@ -5,6 +5,7 @@ import secrets
 from argon2.exceptions import VerifyMismatchError
 import sqlalchemy as sa
 from jawaf.auth.tables import user, user_password_reset
+from jawaf.auth.utils import database_key
 from jawaf.conf import settings
 from jawaf.db import Connection
 from jawaf.security import generate_csrf_token
@@ -12,14 +13,6 @@ from jawaf.utils.timezone import get_utc
 
 SELECTOR_ENCODED_LENGTH = 24
 SELECTOR_TOKEN_LENGTH = 18
-
-def _database_key(database):
-    """Get the default database key for jawaf.auth
-    :param database: String. Database name to connect to.
-    """
-    if not database:
-        return settings.AUTH_CONFIG['database']
-    return database
 
 def check_password(password, encoded):
     """Verify the password using Password Hasher from settings.
@@ -40,7 +33,7 @@ async def check_user(username='', password='', database=None):
     :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
     :return: Boolean. If username and password are a valid combination.
     """
-    database = _database_key(database)
+    database = database_key(database)
     async with Connection(database) as con:
         query = sa.select('*').select_from(user).where(user.c.username==username)
         row = await con.fetchrow(query)
@@ -59,7 +52,7 @@ async def check_user_reset_access(username, user_id, split_token, database=None)
     """
     if username is None or user_id is None:
         return False
-    database = _database_key(database)
+    database = database_key(database)
     selector = split_token[:SELECTOR_ENCODED_LENGTH].encode('utf-8')
     verifier = split_token[SELECTOR_ENCODED_LENGTH:].encode('utf-8')
     async with Connection(database) as con:
@@ -112,14 +105,13 @@ async def create_user(username,
     :param date_joined: Datetime (with timezone). Date user account was created.
     :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
     """
-    database = _database_key(database)
-    encoded = make_password(password)
+    database = database_key(database)
     if date_joined == None:
         date_joined = get_utc(datetime.datetime.now())
     async with Connection(database) as con:
         stmt = user.insert().values(
             username=username, 
-            password=encoded, 
+            password=make_password(password), 
             first_name=first_name, 
             last_name=last_name,
             email=email,
@@ -155,13 +147,12 @@ def create_user_from_engine(engine, username='',
     """
     if not engine:
         raise Exception('Must specify an SQLAlchemy Engine')
-    encoded = make_password(password)
     if date_joined == None:
         date_joined = get_utc(datetime.datetime.now())
     with engine.connect() as con:
         stmt = user.insert().values(
             username=username, 
-            password=encoded, 
+            password=make_password(password), 
             first_name=first_name, 
             last_name=last_name,
             email=email,
@@ -172,7 +163,6 @@ def create_user_from_engine(engine, username='',
             date_joined=date_joined,
             last_login=None)
         con.execute(stmt)
-
 
 def decode_user_id(encoded_user_id):
     """Get decoded user_id.
@@ -202,7 +192,7 @@ async def generate_reset_split_token(user_id, database=None):
     :param database: String. Database name to connect to. (Default: None - use jawaf.auth default)
     :return: String. Joined token.
     """
-    database = _database_key(database)
+    database = database_key(database)
     selector, verifier = _generate_split_token()
     async with Connection(database) as con:
         stmt = user_password_reset.insert().values(
@@ -263,7 +253,7 @@ async def update_user(database=None, target_username=None, target_user_id=None, 
     :param date_joined: Datetime (with timezone). Date user account was created.
     :param last_login: Datetime (with timezone). Date user account was last accessed.
     """
-    database = _database_key(database)
+    database = database_key(database)
     if 'password' in kwargs:
         kwargs['password'] = make_password(kwargs['password'])
     if not target_username and not target_user_id:

@@ -21,9 +21,11 @@ This is divided into sections:
     * Permissions
 
 #### Admin site
-    * User + Permission Checks for Admin Site
     * Search API
     * Audit Trail of Actions
+
+## DB
+    * Take a fresh look at async vs engine support
 
 #### Email
     * Basic email support
