@@ -26,7 +26,7 @@ This is divided into sections:
     * Audit Trail of Actions
 
 #### Email
-    * Basic email support?
+    * Basic email support
 
 #### PyPi Release
     * Put this up on PyPi

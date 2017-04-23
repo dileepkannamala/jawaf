@@ -1,6 +1,7 @@
 project_routes = '''
-from test_project.test_app.views import login # Quick login hack for testing purposes
+from test_project.test_app.views import default, login # Quick view hack for testing purposes
 routes = [
+    {'uri': '/', 'handler': default},
     {'uri': '/login/', 'handler': login},
     {'uri': '/test_app/', 'include': 'test_app'},
     {'uri': '/auth/', 'include': 'jawaf.auth'},
@@ -29,6 +30,9 @@ person = Table('test_app_person', metadata,
 
 app_views = '''from sanic.response import text
 from jawaf.auth.decorators import login_required
+
+async def default(request):
+    return text('/')
 
 async def hello(request):
     return text('Hello!')

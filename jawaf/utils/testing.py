@@ -31,12 +31,28 @@ def simulate_login(waf, username, password, next_path='/'):
     request, response = waf.server.test_client.post('/auth/login/', json=login_form_data, headers=csrf_headers())
     return request, response
 
+def simulate_request(waf):
+    """Simulate a generic request to get the unauthenticated csrf token.
+    :param waf: Jawaf instance.
+    :return: Tuple. request, response.
+    """
+    request, response = waf.server.test_client.get('/', headers=csrf_headers())
+    return request, response
+
 def injected_session_end(waf, injected_session_middleware):
     """Remove the middleware so they don't keep piling up.
     :param waf: Jawaf instance.
     :param injected_session_middleware: Middelware method to remove.
     """
     waf.server.request_middleware.remove(injected_session_middleware)
+
+def injected_session_start(waf, request):
+    """Initialize an injected session via Sanic middleware
+    :param waf: Jawaf instance.
+    :param request: Sanic request from a previous interaction.
+    :return: Sanic middleware method.
+    """
+    return test_session_inject(waf, request['session'], ['user', 'csrf_token'])
 
 def test_session_inject(waf, session, keys):
     """The Sanic test client starts and stops the Sanic server for each request.
@@ -46,6 +62,7 @@ def test_session_inject(waf, session, keys):
     :param waf: Jawaf Instance.
     :param session: sanic_session Session instance.
     :param keys: list. Keys from a previous session to inject into the new session.
+    :return: Sanic middleware method.
     """
     @waf.server.test_client.app.middleware('request')
     async def add_session_to_request(request):

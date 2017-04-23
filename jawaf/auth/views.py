@@ -5,7 +5,7 @@ from jawaf.auth.decorators import login_required
 from jawaf.auth.users import check_user, check_user_reset_access, decode_user_id, encode_user_id, \
     generate_reset_split_token, log_in, log_out, update_user
 from jawaf.conf import settings
-from jawaf.security import check_csrf, check_csrf_headers
+from jawaf.security import check_csrf
 
 class LoginView(HTTPMethodView):
     """Endpoint to handle user login."""
@@ -59,7 +59,7 @@ class PasswordResetView(HTTPMethodView):
     """Endpoint to handle user password reset."""
 
     async def post(self, request, user_id, token):
-        if not check_csrf_headers(request.headers):
+        if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         user_id = decode_user_id(user_id)
         username = request.json.get('username', None)

@@ -35,7 +35,7 @@ def test_data_delete(test_project, waf, admin_login_user):
         'id': user_id,
     }
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.delete('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
@@ -44,7 +44,7 @@ def test_data_get(test_project, waf, admin_login_user):
     """Test posting a new user"""
     user_id, username, password = create_admin_test_data_user('admin_test_get')
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.get('/admin/user/?id=%s' % user_id, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
@@ -58,7 +58,21 @@ def test_data_post(test_project, waf, admin_login_user):
         'is_staff': True,
     }
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 201
+
+def test_data_post_not_logged_in(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    form_data = {
+        'username': 'cool',
+        'password': 'cool_pass',
+        'is_active': True,
+        'is_staff': True,
+    }
+    request, response = testing.simulate_request(waf)
+    middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 201
@@ -72,7 +86,7 @@ def test_data_post_no_csrf(test_project, waf, admin_login_user):
         'is_staff': True,
     }
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers())
     testing.injected_session_end(waf, middleware)
     assert response.status == 403
@@ -86,7 +100,7 @@ def test_data_put(test_project, waf, admin_login_user):
         'password': 'new_pass',
     }
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.test_session_inject(waf, request['session'], ['user', 'csrf_token'])
+    middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.put('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
