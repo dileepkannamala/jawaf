@@ -71,6 +71,11 @@ def test_login_required(test_project, waf, create_users):
 
 def test_login_required_not_logged_in(test_project, waf, create_users):
     """Test accessing a view behind the login_required decorator while not logged in."""
+    request, response = waf.server.test_client.get('/test_app/protected_403/')
+    assert response.status == 403
+
+def test_login_required_not_logged_in_redirect(test_project, waf, create_users):
+    """Test accessing a view behind the login_required decorator while not logged in."""
     request, response = waf.server.test_client.get('/test_app/protected/')
     assert 'Protected!' not in response.text
     assert 'login' in response.text

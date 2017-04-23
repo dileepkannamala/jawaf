@@ -10,11 +10,12 @@ routes = [
 ]
 '''
 
-app_routes = '''from test_project.test_app.views import hello, protected
+app_routes = '''from test_project.test_app.views import hello, protected, protected_403
 
 routes = [
     {'uri': 'hello/', 'handler': hello},
     {'uri': 'protected/', 'handler': protected},
+    {'uri': 'protected_403/', 'handler': protected_403},
 ]
 '''
 
@@ -37,8 +38,12 @@ async def default(request):
 async def hello(request):
     return text('Hello!')
 
-@login_required
+@login_required(redirect=True)
 async def protected(request):
+    return text('Protected!')
+
+@login_required()
+async def protected_403(request):
     return text('Protected!')
 
 async def login(request):

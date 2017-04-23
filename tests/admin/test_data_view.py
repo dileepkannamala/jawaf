@@ -64,7 +64,7 @@ def test_data_post(test_project, waf, admin_login_user):
     assert response.status == 201
 
 def test_data_post_not_logged_in(test_project, waf, admin_login_user):
-    """Test posting a new user"""
+    """Test posting a new user when not logged in"""
     form_data = {
         'username': 'cool',
         'password': 'cool_pass',
@@ -75,7 +75,7 @@ def test_data_post_not_logged_in(test_project, waf, admin_login_user):
     middleware = testing.injected_session_start(waf, request)
     request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
-    assert response.status == 201
+    assert response.status == 403
 
 def test_data_post_no_csrf(test_project, waf, admin_login_user):
     """Test posting a new user"""

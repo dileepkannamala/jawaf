@@ -12,7 +12,8 @@ from jawaf.server import get_jawaf
 class DataView(HTTPMethodView):
     """Endpoint to handle table CRUD."""
     
-    async def delete(self, request, table_name):
+    @login_required()
+    async def delete(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -26,7 +27,8 @@ class DataView(HTTPMethodView):
             return json({'message': 'success'}, status=200)
         return json({'message': 'access denied'}, status=403)
     
-    async def get(self, request, table_name):
+    @login_required()
+    async def get(self, request, table_name=None):
         waf = get_jawaf()
         table = registry.get(table_name)
         try:
@@ -39,7 +41,8 @@ class DataView(HTTPMethodView):
             return json({'message': 'success', 'data': result}, status=200)
         return json({'message': 'access denied'}, status=403)
     
-    async def post(self, request, table_name):
+    @login_required()
+    async def post(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -50,7 +53,8 @@ class DataView(HTTPMethodView):
             return json({'message': 'success'}, status=201)
         return json({'message': 'access denied'}, status=403)
     
-    async def put(self, request, table_name):
+    @login_required()
+    async def put(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -68,6 +72,7 @@ class DataView(HTTPMethodView):
 class SearchView(HTTPMethodView):
     """Endpoint to handle searching table data."""
 
-    async def get(self, request, table_name):
+    @login_required()
+    async def get(self, request, table_name=None):
         #TODO: Implement This
         return json({'message': 'no data', 'results': ''}, status=401)

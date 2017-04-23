@@ -29,6 +29,30 @@ Then a `POST` to that url with `username` and `new_password` in the posted json 
 
 Password reset links, when generated, will expire in a default of 3 hours (override in settings.py) or when accessed once.
 
+## View Decorators
+
+You can protect views based on session status. For example, checking if a user is logged in:
+
+```python
+from jawaf.auth.decorators import login_required
+from sanic.response import text
+from sanic.views import HTTPMethodView
+
+@login_required(redirect=True)
+async def hello(request):
+    return text('Hello World!!!')
+
+class GreetingsView(HTTPMethodView):
+    @login_required()
+    async def get(self, request):
+        return text('Greetings, World! It is a pleasure!')
+
+```
+
+The default behavior is to return a json object with a message `access denied` and a `403` http status.
+Passing the optional `redirect=True` argument in will cause the server to return a redirect to the login url,
+with the parameter `next` pointing to the url the user originally tried to access.
+
 ## Current Status
 
 Very much in progress. Basic features are still being completed and will need reviewing.
