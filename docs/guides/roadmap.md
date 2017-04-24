@@ -18,8 +18,6 @@ This is divided into sections:
 
 #### Admin site
     * Manage Groups & Permissions
-    * Search API
-    * Audit Trail of Actions
 
 #### PyPi Release
     * Put this up on PyPi

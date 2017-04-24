@@ -10,16 +10,25 @@ ACCESS_TYPES = {
     'admin': ['delete', 'get', 'post', 'put'],
 }
 
-async def add_user_to_group(user_row, group_id):
+async def add_user_to_group(user_row, group_id, database=None):
+    """Add user to group
+    :param user_row: SQLAlchemy Record. User row.
+    :param group_id: Int. Group id to add user to.
+    :param database: String. Database id to use, or default for AUTH.
+    """
     database = database_key(database)
     with Connection(database) as con:
         stmt = user_group.insert().values(
             user_id=user_row.id,
             group_id=group_id
             )
-        con.execute(stmt)
+        await con.execute(stmt)
 
 def add_user_to_group_sync(engine, user_row, group_id):
+    """Add user to group synchronously
+    :param user_row: SQLAlchemy Record. User row.
+    :param group_id: Int. Group id to add user to.
+    """
     with engine.connect() as con:
         stmt = user_group.insert().values(
             user_id=user_row.id,
@@ -58,7 +67,14 @@ async def check_permission(user_row, name, target, database=None):
             return True
     return False
 
-async def create_group(name, access_type, targets=[], database=None):
+async def create_group(name, access_type, targets=(), database=None):
+    """Create a group with specified permissions on targets, plus all join tables.
+    :param name: Group name.
+    :param access_type: String. Access type as defined in permissions.ACCESS_TYPES.
+    :param targets: Tuple. Targets to apply access permissions to.
+    :param database: String. Database id to use, or default for AUTH.
+    :return: Int. Group id created.
+    """
     database = database_key(database)  
     permission_names = ACCESS_TYPES[access_type]
     async with Connection(database) as con:
@@ -83,6 +99,13 @@ async def create_group(name, access_type, targets=[], database=None):
     return grp.inserted_primary_key[0]
 
 def create_group_sync(engine, name, access_type, targets=[]):
+    """Create a group with specified permissions on targets, plus all join tables.
+    :param engine: SQLAlchemy Engine. Database engine to connect through.
+    :param name: Group name.
+    :param access_type: String. Access type as defined in permissions.ACCESS_TYPES.
+    :param targets: Tuple. Targets to apply access permissions to.
+    :return: Int. Group id created.
+    """
     permission_names = ACCESS_TYPES[access_type]
     with engine.connect() as con:
         stmt = group.insert().values(

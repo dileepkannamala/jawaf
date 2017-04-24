@@ -40,6 +40,16 @@ settings['BASE_DIR'] = __dir__
 
 settings['INSTALLED_APPS'] = []
 
+settings['ADMIN_CONFIG'] = {
+    'database': 'default', # Specify the database jawaf.admin uses.
+}
+
+settings['AUTH_CONFIG'] = {
+    'password_reset_expiration': 3, # Hours
+    'database': 'default', # Specify the database jawaf.auth uses.
+    'login_url': '/login/',
+}
+
 settings['WORKERS'] = 1
 
 settings['CSRF_FIELD_NAME'] = 'csrf_token'

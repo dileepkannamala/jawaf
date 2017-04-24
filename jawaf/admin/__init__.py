@@ -2,15 +2,15 @@ from jawaf.conf import settings
 
 class AdminRegistry(object):
     def __init__(self):
-        self._registry = {}
+        self._storage = {}
 
     def get(self, name):
-        if not name in self._registry:
+        if not name in self._storage:
             return None
-        return self._registry[name]
+        return self._storage[name]
 
     def register(self, name, table, database=None):
-        self._registry[name] = {'table': table, 'database': database}
+        self._storage[name] = {'table': table, 'database': database}
 
 registry = AdminRegistry()
 def initialize(waf):

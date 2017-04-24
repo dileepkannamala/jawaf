@@ -27,7 +27,6 @@ def admin_login_user():
         user_row = results.fetchone()
     return user_row.id, user_row.username, password
 
-
 def test_data_delete(test_project, waf, admin_login_user):
     """Test posting a new user"""
     user_id, username, password = create_admin_test_data_user('admin_test_delete')

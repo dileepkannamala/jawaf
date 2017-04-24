@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, Sequence, Table, Text
+from jawaf.conf import settings
 
 metadata = MetaData()
 
@@ -47,3 +48,5 @@ user_password_reset = Table('auth_user_password_reset', metadata,
     Column('verifier', Text()),
     Column('expires', DateTime(timezone=True)), 
     )
+
+DATABASE = settings.AUTH_CONFIG['database']

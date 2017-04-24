@@ -38,12 +38,14 @@ def test_project():
     # Setup test postgresql
     postgresql = testing.postgresql.Postgresql()
     engine = create_engine(postgresql.url())
-    # Setup Settings and Reload modules to ensure the project settings are loaded.
+    # Setup Settings and reload modules to ensure the project settings are loaded.
     os.environ.setdefault('JAWAF_SETTINGS_MODULE', '%s.%s.%s.settings' % (test_dir, test_project, test_project))
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
     from jawaf import conf, db, management, security, server, utils
     import jawaf.auth
+    import jawaf.admin
+    import jawaf.admin.utils
     reload(conf)
     reload(db)
     reload(management)
@@ -52,6 +54,8 @@ def test_project():
     reload(utils)
     reload(jawaf.auth.users)
     reload(jawaf.auth.utils)
+    reload(jawaf.admin)
+    reload(jawaf.admin.utils)
     from jawaf.conf import settings
     p_dsn = postgresql.dsn()
     settings['DATABASES']['default']['database'] = p_dsn['database']
@@ -61,6 +65,7 @@ def test_project():
     # Create auth tables
     from jawaf.db import create_tables
     create_tables(['jawaf.auth'], warn=False)
+    create_tables(['jawaf.admin'], warn=False)
     create_tables(['jawaf_example_app'], warn=False)
     yield True
     # Clean up
