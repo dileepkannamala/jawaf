@@ -14,11 +14,6 @@ This is divided into sections:
 
 ## Road to 1.0
 
-### 0.1.0
-
-#### PyPi Release
-    * Put this up on PyPi
-
 ### 0.2.0
 
 #### Migration
