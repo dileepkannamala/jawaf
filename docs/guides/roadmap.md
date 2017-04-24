@@ -31,6 +31,13 @@ This is divided into sections:
     * Django Style Forms?
     * Validation (separated from Forms)
 
+#### Admin Site
+    * Potential Refactor
+    * More advanced search (sort, case sensitivity options, etc)
+
+#### Email
+    * Send emails through local server
+
 ## Unversioned ToDo List
 
 ### Deploy/Run Options

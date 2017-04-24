@@ -5,6 +5,7 @@ import sqlalchemy as sa
 from jawaf.admin import registry
 from jawaf.admin.audit import add_audit_action
 from jawaf.auth.decorators import has_permission
+from jawaf.auth.permissions import add_user_to_group, create_group
 from jawaf.conf import settings
 from jawaf.db import Connection
 from jawaf.security import check_csrf
@@ -22,12 +23,13 @@ class DataView(HTTPMethodView):
         target_id = request.json.get('id', None)
         if not target_id:
             return json({'message': 'no id'}, status=400)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
         async with Connection(table['database']) as con:
             stmt = table['table'].delete().where(table['table'].c.id==target_id)
             await con.execute(stmt)
-            await add_audit_action('delete', 'admin', table_name, request['session']['user'])
-            return json({'message': 'success'}, status=200)
-        return json({'message': 'access denied'}, status=403)
+        await add_audit_action('delete', 'admin', table_name, request['session']['user'])
+        return json({'message': 'success'}, status=200)
     
     @has_permission(name='get', target='admin')
     async def get(self, request, table_name=None):
@@ -37,6 +39,8 @@ class DataView(HTTPMethodView):
             target_id = int(request.raw_args.get('id', None))
         except:
             return json({'message': 'no id'}, status=400)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
         async with Connection(table['database']) as con:
             query = sa.select('*').select_from(table['table']).where(table['table'].c.id==target_id)
             result = await con.fetchrow(query)
@@ -49,12 +53,13 @@ class DataView(HTTPMethodView):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
         table = registry.get(table_name)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
         async with Connection(table['database']) as con:
             stmt = table['table'].insert().values(**request.json)
             await con.execute(stmt)
-            await add_audit_action('post', 'admin', table_name, request['session']['user'])
-            return json({'message': 'success'}, status=201)
-        return json({'message': 'access denied'}, status=403)
+        await add_audit_action('post', 'admin', table_name, request['session']['user'])
+        return json({'message': 'success'}, status=201)
     
     @has_permission(name='put', target='admin')
     async def put(self, request, table_name=None):
@@ -65,13 +70,39 @@ class DataView(HTTPMethodView):
         target_id = request.json.get('id', None)
         if not target_id:
             return json({'message': 'no id'}, status=400)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
         request.json.pop('id')
         async with Connection(table['database']) as con:
             stmt = table['table'].update().where(table['table'].c.id==target_id).values(**request.json)
             await con.execute(stmt)
-            await add_audit_action('put', 'admin', table_name, request['session']['user'])
-            return json({'message': 'success'}, status=200)
-        return json({'message': 'access denied'}, status=403)
+        await add_audit_action('put', 'admin', table_name, request['session']['user'])
+        return json({'message': 'success'}, status=200)
+
+class ManageAccessView(HTTPMethodView):
+    """Convenience endpoint for adding/editing users, groups, and permissions."""
+
+    @has_permission(name='manage_access.delete', target='admin')
+    async def delete(self, request):
+        return json({'message': 'Not yet implemented'}, status=401)  
+
+    @has_permission(name='manage_access.get', target='admin')
+    async def get(self, request):
+        return json({'message': 'Not yet implemented'}, status=401)  
+
+    @has_permission(name='manage_access.post', target='admin')
+    async def post(self, request):
+        user_ids = request.json.get('user_ids')
+        group_name = request.json.get('group_name')
+        permission_pairs = request.json.get('permissions')
+        group_id = await create_group(group_name, permission_pairs)
+        for user_id in user_ids:
+            await add_user_to_group(user_id, group_id)
+        return json({'message': 'success'}, status=200)
+
+    @has_permission(name='manage_access.put', target='admin')
+    async def put(self, request):
+        return json({'message': 'Not yet implemented'}, status=401)    
 
 class SearchView(HTTPMethodView):
     """Endpoint to handle searching table data."""
@@ -82,6 +113,8 @@ class SearchView(HTTPMethodView):
         value = request.raw_args.get('value', '')
         waf = get_jawaf()
         table = registry.get(table_name)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
         if field and value:
             async with Connection(table['database']) as con:
                 query = sa.select('*').select_from(table['table']).where(getattr(table['table'].c, field).ilike(value))
