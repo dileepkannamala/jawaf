@@ -14,10 +14,10 @@ async def test_create_user(test_project, waf):
     assert users.check_password('pass', row.password)
     await waf.close_database_pools()
 
-def test_create_user_from_engine(test_project, waf):
+def test_create_user_sync(test_project, waf):
     """Test creating a user from engine."""
     engine = get_engine('default')
-    users.create_user_from_engine(engine, username='test2', password='pass2')
+    users.create_user_sync(engine, username='test2', password='pass2')
     with engine.connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='test2')
         row = [r for r in con.execute(query)][0]

@@ -16,19 +16,10 @@ This is divided into sections:
 
 ### 0.1.0
 
-#### Auth
-    * Groups
-    * Permissions
-
 #### Admin site
+    * Manage Groups & Permissions
     * Search API
     * Audit Trail of Actions
-
-## DB
-    * Take a fresh look at async vs engine support
-
-#### Email
-    * Basic email support
 
 #### PyPi Release
     * Put this up on PyPi

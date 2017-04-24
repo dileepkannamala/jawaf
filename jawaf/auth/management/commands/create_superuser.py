@@ -1,6 +1,6 @@
 import getpass
 import os
-from jawaf.auth.users import create_user_from_engine
+from jawaf.auth.users import create_user_sync
 from jawaf.conf import settings
 from jawaf.db import get_engine
 from jawaf.management.base import BaseCommand
@@ -31,4 +31,4 @@ class Command(BaseCommand):
             password2 = getpass.getpass('Password (again): ')
             if not self._validate_password(password, password2):
                 password = None
-        create_user_from_engine(engine, username=username, password=password, email=email, is_staff=True, is_superuser=True)
+        create_user_sync(engine, username=username, password=password, email=email, is_staff=True, is_superuser=True)

@@ -19,7 +19,7 @@ async def add_user_to_group(user_row, group_id):
             )
         con.execute(stmt)
 
-def add_user_to_group_from_engine(engine, user_row, group_id):
+def add_user_to_group_sync(engine, user_row, group_id):
     with engine.connect() as con:
         stmt = user_group.insert().values(
             user_id=user_row.id,
@@ -27,7 +27,7 @@ def add_user_to_group_from_engine(engine, user_row, group_id):
             )
         con.execute(stmt)
 
-async def check_permission(user_row, name, target):
+async def check_permission(user_row, name, target, database=None):
     """Check permission via groups.
     :param user_row: SQLAlchemy Record. User row to check.
     :param name: String. Name of permission.
@@ -37,7 +37,7 @@ async def check_permission(user_row, name, target):
     # TODO: Clean this up.
     if user_row.is_superuser:
         return True
-    database = database_key(None)
+    database = database_key(database)
     async with Connection(database) as con:
         query = sa.select('*').select_from(user_group).where(user_group.c.user_id==user_row.id)
         rows = await con.fetch(query)
@@ -58,7 +58,7 @@ async def check_permission(user_row, name, target):
             return True
     return False
 
-async def setup_group(name, access_type, targets=[]):
+async def create_group(name, access_type, targets=[], database=None):
     database = database_key(database)  
     permission_names = ACCESS_TYPES[access_type]
     async with Connection(database) as con:
@@ -82,7 +82,7 @@ async def setup_group(name, access_type, targets=[]):
             await con.execute(stmt)
     return grp.inserted_primary_key[0]
 
-def setup_group_from_engine(engine, name, access_type, targets=[]):
+def create_group_sync(engine, name, access_type, targets=[]):
     permission_names = ACCESS_TYPES[access_type]
     with engine.connect() as con:
         stmt = group.insert().values(

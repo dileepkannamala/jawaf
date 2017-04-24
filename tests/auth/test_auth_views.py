@@ -12,8 +12,8 @@ from jawaf.utils import testing
 def create_users():
     """Create test users."""
     engine = get_engine('default')
-    users.create_user_from_engine(engine, username='admin', password='admin_pass')
-    users.create_user_from_engine(engine, username='casual_user', password='casual_pass')
+    users.create_user_sync(engine, username='admin', password='admin_pass')
+    users.create_user_sync(engine, username='casual_user', password='casual_pass')
 
 def test_login_post(test_project, waf, create_users):
     """Test logging in via post."""

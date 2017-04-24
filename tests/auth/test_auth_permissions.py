@@ -9,13 +9,13 @@ from jawaf.utils import testing
 def create_groups():
     """Create test users."""
     engine = get_engine('default')
-    users.create_user_from_engine(engine, username='permission_test_admin', password='admin_pass_1')
-    users.create_user_from_engine(engine, username='permission_test_regular', password='admin_pass_2')
-    group_id = permissions.setup_group_from_engine(engine, name='AdminEditors', access_type='edit', targets=['test_app'])
+    users.create_user_sync(engine, username='permission_test_admin', password='admin_pass_1')
+    users.create_user_sync(engine, username='permission_test_regular', password='admin_pass_2')
+    group_id = permissions.create_group_sync(engine, name='AdminEditors', access_type='edit', targets=['test_app'])
     with engine.connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='permission_test_admin')
         user_row = [r for r in con.execute(query)][0]
-    permissions.add_user_to_group_from_engine(engine, user_row, group_id)
+    permissions.add_user_to_group_sync(engine, user_row, group_id)
 
 def test_read_only_permission_fail(test_project, waf, create_groups):
     """Test has permission works with readonly"""

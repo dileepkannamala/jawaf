@@ -8,7 +8,7 @@ from jawaf.utils import testing
 def create_admin_test_data_user(name, password='admin_pass_test'):
     """Create test users."""
     engine = get_engine('default')
-    users.create_user_from_engine(engine, username=name, password=password)
+    users.create_user_sync(engine, username=name, password=password)
     with engine.connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username==name)
         results = con.execute(query)
@@ -20,7 +20,7 @@ def admin_login_user():
     engine = get_engine('default')
     username='admin_api_test'
     password='admin_api_pass'
-    users.create_user_from_engine(engine, username=username, password=password, is_staff=True, is_superuser=True)
+    users.create_user_sync(engine, username=username, password=password, is_staff=True, is_superuser=True)
     with engine.connect() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username==username)
         results = con.execute(query)

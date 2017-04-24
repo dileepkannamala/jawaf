@@ -123,7 +123,7 @@ async def create_user(username,
             last_login=None)
         await con.execute(stmt)
 
-def create_user_from_engine(engine, username='', 
+def create_user_sync(engine, username='', 
     password='', 
     first_name=None, 
     last_name=None,
