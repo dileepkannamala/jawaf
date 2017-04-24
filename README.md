@@ -2,6 +2,9 @@
 ## Jawaf ##
 
 [![Build Status](https://travis-ci.org/danpozmanter/jawaf.svg?branch=master)](https://travis-ci.org/danpozmanter/jawaf)
+[![Documentation](https://readthedocs.org/projects/jawaf/badge/?version=latest)](http://jawaf.readthedocs.io/en/latest/?badge=latest)
+[![PyPI](https://img.shields.io/pypi/v/jawaf.svg)](https://pypi.python.org/pypi/jawaf/)
+[![PyPI Version](https://img.shields.io/pypi/pyversions/jawaf.svg)](https://pypi.python.org/pypi/jawaf/)
 
 **Jawaf asynchronous web application framework**
 
