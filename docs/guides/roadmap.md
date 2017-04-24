@@ -16,9 +16,6 @@ This is divided into sections:
 
 ### 0.1.0
 
-#### Admin site
-    * Manage Groups & Permissions
-
 #### PyPi Release
     * Put this up on PyPi
 
@@ -34,6 +31,7 @@ This is divided into sections:
 #### Admin Site
     * Potential Refactor
     * More advanced search (sort, case sensitivity options, etc)
+    * Evaluate bulk retrieval/deletion/editing for groups and permissions
 
 #### Email
     * Send emails through local server

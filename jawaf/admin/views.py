@@ -82,13 +82,15 @@ class DataView(HTTPMethodView):
 class ManageAccessView(HTTPMethodView):
     """Convenience endpoint for adding/editing users, groups, and permissions."""
 
-    @has_permission(name='manage_access.delete', target='admin')
-    async def delete(self, request):
-        return json({'message': 'Not yet implemented'}, status=401)  
+    # @has_permission(name='manage_access.delete', target='admin')
+    # async def delete(self, request):
+    #     # TODO: Implement group and permission deletion in bulk?
+    #     return json({'message': 'Not yet implemented'}, status=401)  
 
-    @has_permission(name='manage_access.get', target='admin')
-    async def get(self, request):
-        return json({'message': 'Not yet implemented'}, status=401)  
+    # @has_permission(name='manage_access.get', target='admin')
+    # async def get(self, request):
+    #     # TODO: Possibly implement bulk return of groups and permissions for a user.
+    #     return json({'message': 'Not yet implemented'}, status=401)  
 
     @has_permission(name='manage_access.post', target='admin')
     async def post(self, request):
@@ -100,9 +102,10 @@ class ManageAccessView(HTTPMethodView):
             await add_user_to_group(user_id, group_id)
         return json({'message': 'success'}, status=200)
 
-    @has_permission(name='manage_access.put', target='admin')
-    async def put(self, request):
-        return json({'message': 'Not yet implemented'}, status=401)    
+    # @has_permission(name='manage_access.put', target='admin')
+    # async def put(self, request):
+    #     # TODO: Implement group and permission editing in a bulk fashion?
+    #     return json({'message': 'Not yet implemented'}, status=401)    
 
 class SearchView(HTTPMethodView):
     """Endpoint to handle searching table data."""

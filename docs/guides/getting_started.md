@@ -4,7 +4,13 @@
 
 Make sure you have python 3.6 or higher installed. Jawaf uses new syntax and libraries introduced in python 3.5 and 3.6, and will not work with earlier versions.
 
-Until Jawaf is published on PyPi, you will need to install manually:
+### Install from PyPI
+
+```bash
+pip install jawaf
+```
+
+### Install Manually:
 
 ```bash
 cd path_to_jawaf/
