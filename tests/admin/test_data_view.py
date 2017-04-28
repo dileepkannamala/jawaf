@@ -44,7 +44,7 @@ def test_data_get(test_project, waf, admin_login_user):
     user_id, username, password = create_admin_test_data_user('admin_test_get')
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
     middleware = testing.injected_session_start(waf, request)
-    request, response = waf.server.test_client.get('/admin/user/?id=%s' % user_id, headers=testing.csrf_headers(request))
+    request, response = waf.server.test_client.get(f'/admin/user/?id={user_id}', headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
 

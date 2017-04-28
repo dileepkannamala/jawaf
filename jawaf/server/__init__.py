@@ -54,9 +54,9 @@ class Jawaf(object):
         except ImportError:
             module = None
         if module == None:
-            routes_spec = importlib.util.spec_from_file_location('%s%s.routes' % (self.name, prefix), routes_import)
+            routes_spec = importlib.util.spec_from_file_location(f'{self.name}{prefix}.routes', routes_import)
             if not routes_spec:
-                raise Exception('Error processing routes file: %s' % routes_import)
+                raise Exception(f'Error processing routes file: {routes_import}')
             module = importlib.util.module_from_spec(routes_spec)
             routes_spec.loader.exec_module(module)
         for route in module.routes:
@@ -112,7 +112,7 @@ class Jawaf(object):
                 module = import_module(app)
             except ImportError:
                 app_import = os.path.join(settings.BASE_DIR, app)
-                app_spec = importlib.util.spec_from_file_location('app.%s' % app, app_import)
+                app_spec = importlib.util.spec_from_file_location(f'app.{app}', app_import)
                 if app_spec:
                     module = importlib.util.module_from_spec(app_spec)
                     app_spec.loader.exec_module(module)
@@ -124,7 +124,7 @@ class Jawaf(object):
         """Initialize database connection pools from settings.py, 
         setting up Sanic blueprints for server start and stop."""
         for database in settings.DATABASES:
-            db_blueprint = Blueprint('%s_db_blueprint_%s' % (self.name, database))
+            db_blueprint = Blueprint(f'{self.name}_db_blueprint_{database}')
             connection_settings = settings.DATABASES[database].copy()
             connection_settings.pop('engine') # Pop out engine before passing it into the create_pool method on the db backend.
             @db_blueprint.listener('before_server_start')
@@ -148,7 +148,7 @@ class Jawaf(object):
         elif interface_type == 'redis':
             self._session_interface = RedisSessionInterface(self.get_session_pool())
         else:
-            raise Exception('Unexpected session type "%s".'  % interface)
+            raise Exception(f'Unexpected session type "{interface}".')
         @self.server.middleware('request')
         async def add_session_to_request(request):
             await self._session_interface.open(request)

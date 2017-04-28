@@ -45,7 +45,7 @@ def generate_csrf_token(user_id=None, user_last_login=None):
     :return: String. Token.
     """ 
     if user_id and user_last_login:
-        message = bytearray('%s|%s' % (user_id, str(user_last_login)), 'utf-8')
+        message = bytearray('{0}|{1}'.format(user_id, str(user_last_login)), 'utf-8')
     else:
         message = secrets.token_bytes(24)
     secret = bytearray(settings.SECRET_KEY, 'utf-8')

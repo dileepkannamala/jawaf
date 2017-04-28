@@ -38,7 +38,7 @@ class CommandParser(ArgumentParser):
         return super().parse_args(args, namespace)
 
     def error(self, message):
-        raise CommandError("Error: %s" % message)
+        raise CommandError(f'Error: {message}')
 
 ### /Some spicy goodness from Django
 
@@ -55,7 +55,7 @@ class BaseCommand(object):
         :param subcommand: String. subcommand.
         """
         parser = CommandParser(
-            self, prog="%s %s" % (os.path.basename(prog_name), subcommand),
+            self, prog='{0} {1}'.format(os.path.basename(prog_name), subcommand),
             description=None,
         )
         return parser
@@ -118,7 +118,7 @@ class TemplateCommand(BaseCommand):
         except ImportError:
             pass
         else:
-            raise CommandError('%s conflicts with an existing module. Please try another name.' % target_name)
+            raise CommandError(f'{target_name} conflicts with an existing module. Please try another name.')
         template_dir = os.path.join(__dir__, 'templates', template)
         self._render(target_name, template_dir, os.path.join(target_base_dir, target_name))
 
@@ -134,7 +134,7 @@ class TemplateCommand(BaseCommand):
             os.mkdir(write_path)
             for filename in os.listdir(read_path):
                 if fnmatch(filename, 'test_*'):
-                    write_filename = filename.replace('test_', 'test_%s_' % target_name)
+                    write_filename = filename.replace('test_', f'test_{target_name}_')
                 else:
                     write_filename = filename
                 self._render(target_name, os.path.join(read_path, filename), os.path.join(write_path, write_filename))

@@ -13,13 +13,13 @@ def create_tables(apps, warn=True):
     for app in apps:
         # First try to import the app as a package.
         try:
-            module = import_module('%s.tables' % app)
+            module = import_module(f'{app}.tables')
         except ImportError:
             module = None
         # If that didn't work, try importing it from the project.
         if module == None:
             tables_file = os.path.join(settings.BASE_DIR, app, 'tables.py')
-            tables_spec = importlib.util.spec_from_file_location('%s.tables' % app, tables_file)
+            tables_spec = importlib.util.spec_from_file_location(f'{app}.tables', tables_file)
             if not tables_spec:
                 module = None
             else:
@@ -27,20 +27,20 @@ def create_tables(apps, warn=True):
                 tables_spec.loader.exec_module(module)
         database_key = getattr(module, 'DATABASE', settings.DEFAULT_DATABASE_KEY)
         if not database_key in settings.DATABASES:
-            raise Exception('Database "%s" not found for app %s' % (database_key, app))
+            raise Exception(f'Database "{database_key}" not found for app {app}')
         engine = get_engine(database_key)
         if module:
             for item in dir(module):
                 attr = getattr(module, item)
                 if type(attr) == Table:
                     if warn and engine.dialect.has_table(engine, attr):
-                        print('Warning, table %s already exists!' % attr)
+                        print(f'Warning, table {attr} already exists!')
                         # TODO: Optionally drop table
             if warn:
                 proceed = input('Create Tables (y/n)? ')
                 if proceed.lower() == 'n':
                     return
-        print('Creating tables for app %s...' % app)        
+        print('Creating tables for app {app}...')
         module.metadata.create_all(engine)
 
 class Connection:
@@ -72,4 +72,4 @@ def get_engine(database=None):
     if not database:
         database = settings.DEFAULT_DATABASE_KEY
     connection_settings = settings.DATABASES[database]
-    return create_engine('%(engine)s://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s' % connection_settings)
+    return create_engine('{engine}://{user}:{password}@{host}:{port}/{database}'.format(**connection_settings))

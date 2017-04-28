@@ -68,10 +68,10 @@ def load_command_class(command):
     :param command: Dict. App name and command name.
     :return: Instance of named management command in target app.
     """
-    command_import = os.path.join(command['path'], '%s.py' % command['name'])
-    command_spec = importlib.util.spec_from_file_location('%s.management.commands.%s' % (command['app'], command['name']), command_import)
+    command_import = os.path.join(command['path'], '{0}.py'.format(command['name']))
+    command_spec = importlib.util.spec_from_file_location('{0}.management.commands.{1}'.format(command['app'], command['name']), command_import)
     if not command_spec:
-        raise Exception('Error processing command file: %s' % command_import)
+        raise Exception(f'Error processing command file: {command_import}')
     module = importlib.util.module_from_spec(command_spec)
     command_spec.loader.exec_module(module)
     return module.Command()

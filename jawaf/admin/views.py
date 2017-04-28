@@ -47,22 +47,8 @@ class DataView(HTTPMethodView):
             return json({'message': 'success', 'data': result}, status=200)
         return json({'message': 'access denied'}, status=403)
     
-    @has_permission(name='post', target='admin')
-    async def post(self, request, table_name=None):
-        if not check_csrf(request):
-            return json({'message': 'access denied'}, status=403)
-        waf = get_jawaf()
-        table = registry.get(table_name)
-        if not table:
-            return json({'message': 'access denied'}, status=403)
-        async with Connection(table['database']) as con:
-            stmt = table['table'].insert().values(**request.json)
-            await con.execute(stmt)
-        await add_audit_action('post', 'admin', table_name, request['session']['user'])
-        return json({'message': 'success'}, status=201)
-    
-    @has_permission(name='put', target='admin')
-    async def put(self, request, table_name=None):
+    @has_permission(name='patch', target='admin')
+    async def patch(self, request, table_name=None):
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -78,6 +64,20 @@ class DataView(HTTPMethodView):
             await con.execute(stmt)
         await add_audit_action('put', 'admin', table_name, request['session']['user'])
         return json({'message': 'success'}, status=200)
+    
+    @has_permission(name='post', target='admin')
+    async def post(self, request, table_name=None):
+        if not check_csrf(request):
+            return json({'message': 'access denied'}, status=403)
+        waf = get_jawaf()
+        table = registry.get(table_name)
+        if not table:
+            return json({'message': 'access denied'}, status=403)
+        async with Connection(table['database']) as con:
+            stmt = table['table'].insert().values(**request.json)
+            await con.execute(stmt)
+        await add_audit_action('post', 'admin', table_name, request['session']['user'])
+        return json({'message': 'success'}, status=201)
 
 class ManageAccessView(HTTPMethodView):
     """Convenience endpoint for adding/editing users, groups, and permissions."""
@@ -92,6 +92,11 @@ class ManageAccessView(HTTPMethodView):
     #     # TODO: Possibly implement bulk return of groups and permissions for a user.
     #     return json({'message': 'Not yet implemented'}, status=401)  
 
+    # @has_permission(name='manage_access.patch', target='admin')
+    # async def patch(self, request):
+    #     # TODO: Implement group and permission editing in a bulk fashion?
+    #     return json({'message': 'Not yet implemented'}, status=401)   
+
     @has_permission(name='manage_access.post', target='admin')
     async def post(self, request):
         user_ids = request.json.get('user_ids')
@@ -101,11 +106,7 @@ class ManageAccessView(HTTPMethodView):
         for user_id in user_ids:
             await add_user_to_group(user_id, group_id)
         return json({'message': 'success'}, status=200)
-
-    # @has_permission(name='manage_access.put', target='admin')
-    # async def put(self, request):
-    #     # TODO: Implement group and permission editing in a bulk fashion?
-    #     return json({'message': 'Not yet implemented'}, status=401)    
+   
 
 class SearchView(HTTPMethodView):
     """Endpoint to handle searching table data."""
@@ -114,6 +115,9 @@ class SearchView(HTTPMethodView):
     async def get(self, request, table_name=None):
         field = request.raw_args.get('field', '')
         value = request.raw_args.get('value', '')
+        sort = request.raw_args.get('sort', '')
+        limit = request.raw_args.get('limit', '')
+        offset = request.raw_args.get('offset', '')
         waf = get_jawaf()
         table = registry.get(table_name)
         if not table:
@@ -121,6 +125,16 @@ class SearchView(HTTPMethodView):
         if field and value:
             async with Connection(table['database']) as con:
                 query = sa.select('*').select_from(table['table']).where(getattr(table['table'].c, field).ilike(value))
+                if sort:
+                    if sort[0] == '-':
+                        sort = sort.lstrip('-')
+                        query = query.order_by(sa.desc(getattr(table['table'].c, sort)))
+                    else:
+                        query = query.order_by(getattr(table['table'].c, sort))
+                if limit:
+                    query = query.limit(int(limit))
+                if offset:
+                    query = query.offset(int(offset))
                 results = await con.fetch(query)
                 if results:
                     return json({'message': 'success', 'results': [r for r in results]}, status=200)

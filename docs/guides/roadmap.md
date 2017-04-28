@@ -25,25 +25,23 @@ This is divided into sections:
 
 #### Admin Site
     * Potential Refactor
-    * More advanced search (sort, case sensitivity options, etc)
     * Evaluate bulk retrieval/deletion/editing for groups and permissions
 
 #### Email
-    * Send emails through local server
+    * Send emails
 
-## Unversioned ToDo List
+### 0.3.0
 
 ### Deploy/Run Options
     * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
     * Docker Support?
     * ASGI Support?
 
-#### DB
-    * Support optionally using pooling?
-
 #### Tests
     * More tests
     * testing.postgresl instead of actual postgres as an option
+
+## Unversioned ToDo List
 
 #### Misc
     * Consider adding Jawaf instance to Request middleware
@@ -55,3 +53,6 @@ This is divided into sections:
 
 #### Messaging
     * [Kafka](https://github.com/aio-libs/aiokafka)?
+
+#### DB
+    * Support optionally using pooling - asyncpgsa doesn't allow this

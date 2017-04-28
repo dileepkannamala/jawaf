@@ -14,4 +14,4 @@ def login_redirect(request):
     :param request: Sanic request.
     :return: Redirect response.
     """
-    return redirect('%s?next=%s' % (settings.AUTH_CONFIG['login_url'], request.path))
+    return redirect('{0}?next={1}'.format(settings.AUTH_CONFIG['login_url'], request.path))

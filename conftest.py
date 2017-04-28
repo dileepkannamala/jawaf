@@ -39,7 +39,7 @@ def test_project():
     postgresql = testing.postgresql.Postgresql()
     engine = create_engine(postgresql.url())
     # Setup Settings and reload modules to ensure the project settings are loaded.
-    os.environ.setdefault('JAWAF_SETTINGS_MODULE', '%s.%s.%s.settings' % (test_dir, test_project, test_project))
+    os.environ.setdefault('JAWAF_SETTINGS_MODULE', f'{test_dir}.{test_project}.{test_project}.settings')
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
     from jawaf import conf, db, management, security, server, utils

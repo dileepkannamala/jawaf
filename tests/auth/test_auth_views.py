@@ -128,7 +128,7 @@ def test_password_reset(test_project, waf, create_users):
         'new_password': 'wookies',
     }
     selector, verifier = users._generate_split_token()
-    token = '%s%s' % (selector.decode('utf-8'), verifier.decode('utf-8'))
+    token = '{0}{1}'.format(selector.decode('utf-8'), verifier.decode('utf-8'))
     with get_engine().connect() as con:
         query = sa.select('*').select_from(user)
         row = con.execute(query).fetchone()
@@ -143,6 +143,6 @@ def test_password_reset(test_project, waf, create_users):
     encoded_user_id = users.encode_user_id(row.id)
     request, response = testing.simulate_request(waf)
     middleware = testing.injected_session_start(waf, request)
-    request, response = waf.server.test_client.post('/auth/password_reset/%s/%s/' % (encoded_user_id, token), json=change_form_data, headers=testing.csrf_headers())
+    request, response = waf.server.test_client.post(f'/auth/password_reset/{encoded_user_id}/{token}/', json=change_form_data, headers=testing.csrf_headers())
     testing.injected_session_end(waf, middleware)
     assert response.status == 200

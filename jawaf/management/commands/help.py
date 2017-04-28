@@ -7,7 +7,7 @@ from jawaf.conf import settings
 help_text = '''
 Available commands:
 
-%s
+{0}
 
 Usage:
 
@@ -20,5 +20,5 @@ class Command(BaseCommand):
     def handle(self, **options):
         commands = [command.replace('_', '-') for command in discover().keys()]
         commands.sort()
-        print(help_text % '\n'.join(commands))
+        print(help_text.format('\n'.join(commands)))
         print()

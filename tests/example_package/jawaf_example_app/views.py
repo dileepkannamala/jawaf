@@ -9,5 +9,5 @@ async def query(request):
     results = 'Questions:\n'
     async with Connection() as con:
         row = await con.fetchrow(query)
-        results += '%s\n' % str(row)
+        results += f'{row}\n'
     return text(results)

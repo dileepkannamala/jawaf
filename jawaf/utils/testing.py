@@ -8,7 +8,7 @@ def csrf_headers(request=None):
     """
     headers = {
         'x-requested-with': 'XMLHttpRequest',
-        'origin': 'https://%s:%s/' % (sanic.testing.HOST, sanic.testing.PORT),
+        'origin': f'https://{sanic.testing.HOST}:{sanic.testing.PORT}/',
     }
     csrf_token = request['session'].get('csrf_token', None) if request else 'test_token'
     if csrf_token:

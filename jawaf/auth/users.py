@@ -202,7 +202,7 @@ async def generate_reset_split_token(user_id, database=None):
             expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=settings.AUTH_CONFIG['password_reset_expiration'])),
             )
         await con.execute(stmt)
-    return '%s%s' % (selector.decode('utf-8'), verifier.decode('utf-8'))
+    return '{0}{1}'.format(selector.decode('utf-8'), verifier.decode('utf-8'))
 
 async def generate_password_reset_path(user_id, database=None):
     """Generate the reset url.
@@ -212,7 +212,7 @@ async def generate_password_reset_path(user_id, database=None):
     """
     encoded_user_id = encode_user_id(user_id)
     token = await generate_reset_split_token(user_id, database=database)
-    return '/auth/password_reset/%s/%s/' % (encoded_user_id, token)
+    return '/auth/password_reset/{0}/{1}/'.format(encoded_user_id, token)
 
 async def log_in(request, user_row):
     """Add the user to the session, update last_login.
