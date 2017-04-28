@@ -6,13 +6,13 @@ Not everything on this list will be implemented, and some items not on this list
 
 This is divided into sections:
 
-`Road to 1.0` is the more or less official list of upcoming releases (including the first release to PyPi).
+`Road to 1.0.0` is the more or less official list of upcoming releases (including the first release to PyPi).
 
 `Unversioned ToDo List` is a list of things that may or may not make it into the semi-official roadmap.
 
 `Unlikely` is a list of itmes that have been evaluated and won't likely make it into the core for 1.0 (unless there's a real desire for those features).
 
-## Road to 1.0
+## Road to 1.0.0
 
 ### 0.2.0
 

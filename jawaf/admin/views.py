@@ -16,6 +16,10 @@ class DataView(HTTPMethodView):
     
     @has_permission(name='delete', target='admin')
     async def delete(self, request, table_name=None):
+        """Delete endpoint.
+        :param request: Sanic Request.
+        :param table_name: Name of the table to access.
+        """
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -33,6 +37,10 @@ class DataView(HTTPMethodView):
     
     @has_permission(name='get', target='admin')
     async def get(self, request, table_name=None):
+        """Get endpoint. Retrieve one object by id (url param `id=`)
+        :param request: Sanic Request.
+        :param table_name: Name of the table to access.
+        """
         waf = get_jawaf()
         table = registry.get(table_name)
         try:
@@ -49,6 +57,10 @@ class DataView(HTTPMethodView):
     
     @has_permission(name='patch', target='admin')
     async def patch(self, request, table_name=None):
+        """Patch endpoint. Partially edit a row.
+        :param request: Sanic Request.
+        :param table_name: Name of the table to access.
+        """
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -67,6 +79,10 @@ class DataView(HTTPMethodView):
     
     @has_permission(name='post', target='admin')
     async def post(self, request, table_name=None):
+        """Post endpoint. Create a new row.
+        :param request: Sanic Request.
+        :param table_name: Name of the table to access.
+        """
         if not check_csrf(request):
             return json({'message': 'access denied'}, status=403)
         waf = get_jawaf()
@@ -98,7 +114,10 @@ class ManageAccessView(HTTPMethodView):
     #     return json({'message': 'Not yet implemented'}, status=401)   
 
     @has_permission(name='manage_access.post', target='admin')
-    async def post(self, request):
+    async def post(self, request):        
+        """Post endpoint. Create a new group with associated permissions.
+        :param request: Sanic Request.
+        """
         user_ids = request.json.get('user_ids')
         group_name = request.json.get('group_name')
         permission_pairs = request.json.get('permissions')
@@ -113,6 +132,11 @@ class SearchView(HTTPMethodView):
 
     @has_permission(name='search.get', target='admin')
     async def get(self, request, table_name=None):
+        """Get endpoint. Search for objects by `field`/`value` params.
+        Optionally add `sort`, `limit`, and `offset`. Default is no sort.
+        :param request: Sanic Request.
+        :param table_name: Name of the table to access.
+        """
         field = request.raw_args.get('field', '')
         value = request.raw_args.get('value', '')
         sort = request.raw_args.get('sort', '')

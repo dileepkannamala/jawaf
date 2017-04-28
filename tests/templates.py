@@ -1,3 +1,5 @@
+# Templates used by ../conftest.py to generate the test project, plus two utility methods.
+
 project_routes = '''
 from test_project.test_app.views import default, login # Quick view hack for testing purposes
 routes = [

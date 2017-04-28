@@ -27,7 +27,7 @@ def test_project():
     from jawaf.management.commands import start_project, start_app
     start_project.Command().handle(name=test_project, directory=os.path.abspath(test_dir))
     start_app.Command().handle(name='test_app', directory=os.path.abspath(os.path.join(test_dir, test_project)))
-    # Setup test code
+    # Create the code for the test project
     templates.write_template('project_routes', os.path.abspath(os.path.join(test_dir, test_project, test_project, 'routes.py')))
     templates.write_template('app_routes', os.path.abspath(os.path.join(test_dir, test_project, 'test_app', 'routes.py')))
     templates.write_template('app_views', os.path.abspath(os.path.join(test_dir, test_project, 'test_app', 'views.py')))
@@ -62,7 +62,7 @@ def test_project():
     settings['DATABASES']['default']['host'] = p_dsn['host']
     settings['DATABASES']['default']['port'] = p_dsn['port']
     settings['DATABASES']['default']['user'] = p_dsn['user']
-    # Create auth tables
+    # Create tables for auth and the example app
     from jawaf.db import create_tables
     create_tables(['jawaf.auth'], warn=False)
     create_tables(['jawaf.admin'], warn=False)
