@@ -90,7 +90,7 @@ def test_data_post_no_csrf(test_project, waf, admin_login_user):
     testing.injected_session_end(waf, middleware)
     assert response.status == 403
 
-def test_data_put(test_project, waf, admin_login_user):
+def test_data_patch(test_project, waf, admin_login_user):
     """Test posting a new user"""
     user_id, username, password = create_admin_test_data_user('admin_test_put')
     form_data = {
@@ -100,7 +100,7 @@ def test_data_put(test_project, waf, admin_login_user):
     }
     request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
     middleware = testing.injected_session_start(waf, request)
-    request, response = waf.server.test_client.put('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
+    request, response = waf.server.test_client.patch('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
     with get_engine('default').connect() as con:
