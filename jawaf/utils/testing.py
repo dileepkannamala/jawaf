@@ -1,6 +1,14 @@
 import sanic.testing
 from jawaf.conf import settings
 
+class MockSMTP(object):
+    def __init__(self, *args, **kwargs):
+        pass
+    async def connect(self):
+        pass
+    async def sendmail(self, *args, **kwargs):
+        pass
+
 def csrf_headers(request=None):
     """Get the CSRF protection headers to pass into a test HTTP request.
     :param request: Sanic Request instance.

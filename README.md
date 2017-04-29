@@ -59,6 +59,7 @@ The goal of this project is to provide much of what Django provides (convenience
 * Interactive shell (using ipython or bpython if either are detected)
 * User Authentication, Groups & Permissions built in
 * Optional Admin API
+* Async SMTP support
 
 Note: Many of the software requirements are in beta, alpha, or even pre-alpha status.
 You'd be well advised to have a long hard think about using this in production.

@@ -2,6 +2,7 @@ import fnmatch
 from importlib import import_module
 import importlib.util
 import os
+from smtplibaio import SMTP
 from sanic import Blueprint, Sanic
 from sanic_session import InMemorySessionInterface, RedisSessionInterface
 from jawaf.conf import settings
@@ -24,12 +25,14 @@ class Jawaf(object):
 
         self._db_pools = {}
         self._session_pool = None
+        self._smtp = None
         global _active_instance
         _active_instance = self
 
         self.add_routes(routes_import=os.path.join(settings.PROJECT_DIR, 'routes.py'), base_path=settings.BASE_DIR)
         self.init_databases()
         self.init_session()
+        self.init_smtp()
         self.init_apps()
 
     def add_route(self, *args, **options):
@@ -105,6 +108,9 @@ class Jawaf(object):
             self._session_pool = await asyncio_redis.Pool.create(**settings.SESSION)
         return self._session_pool
 
+    def get_smtp(self):
+        return self._smtp
+
     def init_apps(self):
         """Run any initialization code inside an app"""
         for app in settings.INSTALLED_APPS:
@@ -156,6 +162,19 @@ class Jawaf(object):
         @self.server.middleware('response')
         async def save_session(request, response):
             await self._session_interface.save(request, response)
+
+    def init_smtp(self):
+        """Initialize smtp connection"""
+        if not 'SMTP' in settings:
+            return
+        smtp_blueprint = Blueprint(f'{self.name}_smtp_blueprint')
+        @smtp_blueprint.listener('before_server_start')
+        async def connect_smtp(app, loop):
+            self._smtp = SMTP(hostname=settings.SMTP['host'], port=settings.SMTP['port'])
+            await self._smtp.connect()
+            if 'username' in settings.SMTP and 'password' in settings.SMTP:
+                await self._smtp.auth.auth(settings.SMTP['username'], settings.SMTP['password'])
+        self.server.blueprint(smtp_blueprint)
 
     async def release(self, connection, database=None):
         """Asynchronously release a connection to the database specified.

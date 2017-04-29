@@ -33,19 +33,24 @@ def test_project():
     templates.write_template('app_views', os.path.abspath(os.path.join(test_dir, test_project, 'test_app', 'views.py')))
     templates.write_template('app_tables', os.path.abspath(os.path.join(test_dir, test_project, 'test_app', 'tables.py')))
     templates.edit_settings(os.path.abspath(os.path.join(test_dir, test_project, test_project, 'settings.py')), 
-        "'jawaf.auth',",
-        "'jawaf.auth',\n    'test_app',\n    'jawaf_example_app',")
+        targets=[
+            ["'jawaf.auth',", "'jawaf.auth',\n    'test_app',\n    'jawaf_example_app',"],
+            ['SMTP = {', "SMTP = {'host':'localhost', 'port':8024"],
+        ])
     # Setup test postgresql
     postgresql = testing.postgresql.Postgresql()
-    engine = create_engine(postgresql.url())
+    create_engine(postgresql.url())
+    # Hot Patch
+    import smtplibaio
+    from jawaf.utils.testing import MockSMTP
+    smtplibaio.SMTP = MockSMTP
     # Setup Settings and reload modules to ensure the project settings are loaded.
     os.environ.setdefault('JAWAF_SETTINGS_MODULE', f'{test_dir}.{test_project}.{test_project}.settings')
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
     from jawaf import conf, db, management, security, server, utils
-    import jawaf.auth
-    import jawaf.admin
-    import jawaf.admin.utils
+    import jawaf.auth, jawaf.auth.users, jawaf.auth.utils
+    import jawaf.admin, jawaf.admin.utils
     reload(conf)
     reload(db)
     reload(management)

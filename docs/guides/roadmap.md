@@ -17,29 +17,13 @@ This is divided into sections:
 ### 0.2.0
 
 #### Migration
-    * SQLAlchemy migration tool (alembic?)
+    * SQLAlchemy migration tool (alembic, sqlalchemy migrate, or home grown)
 
-#### Forms & Validation
-    * Django Style Forms?
-    * Validation (separated from Forms)
-
-#### Admin Site
-    * Potential Refactor
-    * Evaluate bulk retrieval/deletion/editing for groups and permissions
-
-#### Email
-    * Send emails
-
-### 0.3.0
-
-### Deploy/Run Options
+#### Deploy/Run Options
     * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
-    * Docker Support?
-    * ASGI Support?
 
-#### Tests
-    * More tests
-    * testing.postgresl instead of actual postgres as an option
+#### Validation
+    * Validation
 
 ## Unversioned ToDo List
 
@@ -56,3 +40,6 @@ This is divided into sections:
 
 #### DB
     * Support optionally using pooling - asyncpgsa doesn't allow this
+
+#### Tests
+    * testing.postgresl instead of actual postgres as an option
