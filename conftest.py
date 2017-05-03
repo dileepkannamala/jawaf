@@ -46,7 +46,7 @@ def test_project():
     smtplibaio.SMTP = MockSMTP
     smtplibaio.SMTP_SSL = MockSMTP
     # Setup Settings and reload modules to ensure the project settings are loaded.
-    os.environ.setdefault('JAWAF_SETTINGS_MODULE', f'{test_dir}.{test_project}.{test_project}.settings')
+    os.environ.setdefault('JAWAF_SETTINGS_PATH', f'{test_dir}/{test_project}/{test_project}/settings.py')
     sys.path.insert(0, os.path.abspath(test_dir))
     from imp import reload
     from jawaf import conf, db, management, security, server, utils
