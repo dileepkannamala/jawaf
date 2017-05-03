@@ -133,6 +133,9 @@ class Jawaf(object):
             db_blueprint = Blueprint(f'{self.name}_db_blueprint_{database}')
             connection_settings = settings.DATABASES[database].copy()
             connection_settings.pop('engine') # Pop out engine before passing it into the create_pool method on the db backend.
+            if not connection_settings['user']:
+                connection_settings.pop('user')
+                connection_settings.pop('password')
             @db_blueprint.listener('before_server_start')
             async def setup_connection_pool(app, loop):
                 self._db_pools[database] = await settings.DB_BACKEND.create_pool(**connection_settings)
@@ -144,6 +147,8 @@ class Jawaf(object):
 
     def init_session(self):
         """Initialize the session connection pool, using either in memory interface or redis."""
+        if not 'SESSION' in settings:
+            return
         interface_type = settings.SESSION.pop('interface')
         if self.testing:
             # Set the session to in memory for unit tests.

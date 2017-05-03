@@ -59,13 +59,6 @@ settings['CSRF_HEADER_NAME'] = 'X-CSRF-TOKEN'
 
 settings['PASSWORD_HASHER'] = PasswordHasher(hash_len=24, salt_len=16)
 
-settings['SESSION'] = {
-    'host':'localhost',
-    'interface': 'redis',
-    'poolsize': 10,
-    'port': 6379,
-}
-
 project_settings_path = os.environ.get('JAWAF_SETTINGS_PATH')
 if project_settings_path:
     project_settings_spec = importlib.util.spec_from_file_location(f'jawaf.project.settings', project_settings_path)

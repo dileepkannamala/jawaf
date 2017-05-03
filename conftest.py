@@ -64,10 +64,13 @@ def test_project():
     reload(jawaf.admin.utils)
     from jawaf.conf import settings
     p_dsn = postgresql.dsn()
+    settings['DATABASES']['default'] = {'engine':'postgresql'}
     settings['DATABASES']['default']['database'] = p_dsn['database']
     settings['DATABASES']['default']['host'] = p_dsn['host']
     settings['DATABASES']['default']['port'] = p_dsn['port']
     settings['DATABASES']['default']['user'] = p_dsn['user']
+    settings['DATABASES']['default']['password'] = ''
+    settings['SESSION'] = {'interface': 'memory'}
     # Create tables for auth and the example app
     from jawaf.db import create_tables
     create_tables(['jawaf.auth'], warn=False)

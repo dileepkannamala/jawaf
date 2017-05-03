@@ -38,24 +38,24 @@ AUTH_CONFIG = {
 ROOT_ROUTE_CONF = '${project_name}.routes'
 
 DATABASES = {
-    'default': {
-        'database': 'jawaf_${project_name}', # Default database name - change to match the database you want to use.
-        'engine': 'postgresql',
-        'host': 'localhost', # Set this to the host for your postgresql install, localhost by default.
-        'port': '5432', # Port for your local install - typically 5432 or 5433
-        'password': '', # Set this to the password for your postgresql install
-        'user': '', # Set this to the user for your postgresql install
-    }
+#    'default': {
+#        'database': 'jawaf_${project_name}', # Default database name - change to match the database you want to use.
+#        'engine': 'postgresql',
+#        'host': 'localhost', # Set this to the host for your postgresql install, localhost by default.
+#        'port': '5432', # Port for your local install - typically 5432 or 5433
+#        'password': '', # Set this to the password for your postgresql install
+#        'user': '', # Set this to the user for your postgresql install
+#    }
 }
 
-SESSION = {
-    'interface': 'memory', # Optionally use in memory for local development and testing
+#SESSION = {
+#    'interface': 'memory', # Optionally use in memory for local development and testing
 #    Use Redis for production, and also for local development and testing:
 #    'host':'localhost',
 #    'interface': 'redis',
 #    'poolsize': 10,
 #    'port': 6379,
-}
+#}
 
 HOST = '0.0.0.0'
 PORT = 8000

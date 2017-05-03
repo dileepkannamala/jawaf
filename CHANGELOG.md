@@ -1,3 +1,10 @@
+# Version 0.2.2
+
+- Template fix in manage.py
+- Allow connection to db without user/password
+- Comment out database settings in settings.py by default
+- Make session support optional
+
 # Version 0.2.1
 
 - sys.path fix in manage.py
