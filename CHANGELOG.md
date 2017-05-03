@@ -1,3 +1,7 @@
+# Version 0.2.1
+
+- sys.path fix in manage.py
+
 # Version 0.2.0
 
 - Alembic Migrations
