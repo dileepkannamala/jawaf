@@ -57,13 +57,6 @@ SESSION = {
 #    'port': 6379,
 }
 
-SMTP = {
-#    'host':'localhost',
-#    'port': 8025,
-#    'username': '',
-#    'password': '',
-}
-
 HOST = '0.0.0.0'
 PORT = 8000
 

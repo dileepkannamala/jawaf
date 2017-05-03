@@ -14,21 +14,23 @@ This is divided into sections:
 
 ## Road to 1.0.0
 
-### 0.2.0
+### 0.3.0
 
-#### Migration
-    * SQLAlchemy migration tool (alembic, sqlalchemy migrate, or home grown)
+#### Serializers
+    * Django Rest Framework Style Serializers?
+
+#### Error Handling
+    * Check Management Commands
+
+## Unversioned ToDo List
 
 #### Deploy/Run Options
     * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
 
-#### Validation
+#### Forms/Validation
+    * Is this needed?
+    * Forms
     * Validation
-
-## Unversioned ToDo List
-
-#### Misc
-    * Consider adding Jawaf instance to Request middleware
 
 ## Unlikely
 

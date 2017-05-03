@@ -5,61 +5,19 @@ import os
 from mako.template import Template
 from jawaf import __dir__, __version__
 
-### Some spicy goodness from Django with edits
-
-class CommandError(Exception):
-    """
-    Exception class indicating a problem while executing a management
-    command.
-    If this exception is raised during the execution of a management
-    command, it will be caught and turned into a nicely-printed error
-    message to the appropriate output stream (i.e., stderr); as a
-    result, raising this exception (with a sensible description of the
-    error) is the preferred way to indicate that something has gone
-    wrong in the execution of a command.
-    """
-    pass
-
-class CommandParser(ArgumentParser):
-    """
-    Customized ArgumentParser class to improve some error messages and prevent
-    SystemExit in several occasions, as SystemExit is unacceptable when a
-    command is called programmatically.
-    """
-    def __init__(self, cmd, **kwargs):
-        self.cmd = cmd
-        super().__init__(**kwargs)
-
-    def parse_args(self, args=None, namespace=None):
-        # Catch missing argument for a better error message
-        if (hasattr(self.cmd, 'missing_args_message') and
-                not (args or any(not arg.startswith('-') for arg in args))):
-            self.error(self.cmd.missing_args_message)
-        return super().parse_args(args, namespace)
-
-    def error(self, message):
-        raise CommandError(f'Error: {message}')
-
-### /Some spicy goodness from Django
-
 class BaseCommand(object):
     """Base management command class."""
 
-    ### More Django with some edits
+    ### create_parser method is from Django with significant edits.
     def create_parser(self, prog_name, subcommand):
-        """
-        Create and return the ``ArgumentParser`` which will be used to
-        parse the arguments to this command.
-
+        """Create and return the ``ArgumentParser`` which will be used to parse the arguments to this command.
         :param prog_name: String. Program name.
         :param subcommand: String. subcommand.
         """
-        parser = CommandParser(
-            self, prog='{0} {1}'.format(os.path.basename(prog_name), subcommand),
+        return ArgumentParser(
+            prog='{0} {1}'.format(os.path.basename(prog_name), subcommand),
             description=None,
         )
-        return parser
-    ### / More Django
 
     def add_arguments(self, parser):
         """Override in subclasses to add arguments to the parser."""
@@ -121,6 +79,7 @@ class TemplateCommand(BaseCommand):
             raise CommandError(f'{target_name} conflicts with an existing module. Please try another name.')
         template_dir = os.path.join(__dir__, 'templates', template)
         self._render(target_name, template_dir, os.path.join(target_base_dir, target_name))
+        return target_base_dir, target_name
 
     def _render(self, target_name, read_path, write_path):
         """Render a given template or directory for the target.

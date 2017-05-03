@@ -151,8 +151,23 @@ INSTALLED_APPS = [
 ]
 ```
 
+If the database in `settings.py` doesn't yet exist, create it:
+
 ```
-python manage.py create-tables polls
+createdb jawaf_mysite
+```
+
+```
+python manage.py db revision --autogenerate -m 'Initial Migration'
+```
+
+You'll want to manually edit this file to make sure all the details are correct and the table creation is in the correct order.
+(For example, if using both auth and audit, the audit table will need to be created after the auth tables have been created.)
+
+Then run upgrade:
+
+```
+python manage.py db upgrade head
 ```
 
 ### Adding Data
@@ -216,5 +231,7 @@ def test_query(waf):
 
 ```
 python manage.py test
-python manage.py test --args='-x --cov=./'
+python manage.py test -x --cov=./
 ```
+
+All arguments after `test` are automatically passed onto `py.test`.

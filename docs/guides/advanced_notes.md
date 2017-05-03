@@ -54,6 +54,20 @@ async def test_polls_question_created(waf):
         assert # sqlalchemy tests go here
     await waf.close_database_pools()
 ```
+
+## Database Migrations
+
+Jawaf supports migrations through the use of [Alembic](http://alembic.zzzcomputing.com/en/latest/).
+On project start a default Alembic environment is automatically created under the `migrations` directory. (This is also where `alembic.ini` lives). `env.py` is customized to automatically pull in SQLAlchemy metadata for all apps listed in `INSTALLED_APPS` in settings. It will also override the connection string using the default database in `settings.py`. (If you want to support multiple databases you will need to follow the [Instructions in the Alembic Docs](http://alembic.zzzcomputing.com/en/latest/branches.html#working-with-multiple-bases) to do so.
+
+Alembic commands are passed directly to alembic via the management command `db`. Example:
+
+```
+python manage.py db revision -m "Add a column"
+```
+
+`python manage.py db` becomes a drop in replacement for `alembic --config=migrations/alembic.ini`.
+
 ## Installed Apps and Modules
 
 In addition to apps defined within your Jawaf project, you can reference any
@@ -166,4 +180,37 @@ It can be accessed via the session:
 
 ```python
 request['session']['csrf_token']
+```
+
+## Sending Email
+
+After configuing settings to point to an SMTP server:
+
+```python
+SMTP = {
+    'host':'localhost',
+    'port': 8025,
+    'username': '', # Optional, default blank
+    'password': '', # Optional, default blank
+    'ssl': False, # Optional, default False
+}
+```
+
+You can use the async function `send_mail`.
+The recipient address arguments (`to`, `cc`, and `bcc`) all accept either a string or a list of strings.
+
+`html_message` will create a multipart email with `message` as a text alternative to the `html_message`.
+
+```python
+from jawaf.mail import send_mail
+
+async def send_email(request):
+    await send_mail(subject=request.json.get('subject'),
+        message=request.json.get('message'), 
+        from_address=request.json.get('from_address'), 
+        to=request.json.get('to'), 
+        cc=request.json.get('cc', None),
+        bcc=request.json.get('bcc', None),
+        html_message=request.json.get('html_message', None)
+    )
 ```

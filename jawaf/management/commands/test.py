@@ -9,12 +9,6 @@ from jawaf.server import Jawaf
 class Command(BaseCommand):
     """Run py.test framework, set up test databases."""
 
-    def add_arguments(self, parser):
-        """Pass in arguments to py.test as follows: --args="-x"
-        """
-        # TODO: Revisit this!
-        parser.add_argument('--args', default='', help='Arguments for py.test')
-
     def handle(self, **options):
         """Create test databases for all db connections."""
         # Create test db
@@ -25,4 +19,4 @@ class Command(BaseCommand):
             if not database_exists(engine.url):
                 create_database(engine.url)
         create_tables(settings.INSTALLED_APPS, warn=False)
-        pytest.main(options['args'].split(' '))
+        pytest.main(options['unknown'])

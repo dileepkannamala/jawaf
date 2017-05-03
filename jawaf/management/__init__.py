@@ -90,4 +90,7 @@ def run_command(command, args):
     else:
         args = []
     # Run with command line arguments
-    command.execute(**vars(parser.parse_args(args)))
+    known, unknown = parser.parse_known_args(args)
+    known = vars(known)
+    known['unknown'] = unknown
+    command.execute(**known)

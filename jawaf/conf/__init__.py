@@ -1,7 +1,8 @@
 import os
 from argon2 import PasswordHasher
 from collections.abc import MutableMapping
-from importlib import import_module
+# from importlib import import_module
+import importlib.util
 import tzlocal
 from jawaf import __dir__
 
@@ -65,8 +66,12 @@ settings['SESSION'] = {
     'port': 6379,
 }
 
-project_settings_module_var = os.environ.get('JAWAF_SETTINGS_MODULE')
-if project_settings_module_var:
-    project_settings_module = import_module(project_settings_module_var)
+project_settings_path = os.environ.get('JAWAF_SETTINGS_PATH')
+if project_settings_path:
+    project_settings_spec = importlib.util.spec_from_file_location(f'jawaf.project.settings', project_settings_path)
+    if not project_settings_spec:
+        raise Exception(f'Error processing jawaf settings: {project_settings_path}')
+    project_settings_module = importlib.util.module_from_spec(project_settings_spec)
+    project_settings_spec.loader.exec_module(project_settings_module)
     for project_setting in dir(project_settings_module):
         settings[project_setting] = getattr(project_settings_module, project_setting)

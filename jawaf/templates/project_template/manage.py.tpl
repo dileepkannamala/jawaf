@@ -3,8 +3,9 @@ import os
 import sys
 
 if __name__ == '__main__':
-    os.environ.setdefault('JAWAF_SETTINGS_MODULE', '${project_name}.settings')
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    os.environ.setdefault('JAWAF_SETTINGS_PATH', f'{base_dir}/wowza/settings.py')
+    sys.path.insert(0, base_dir)
     try:
         from jawaf.management import execute_from_command_line
     except ImportError:

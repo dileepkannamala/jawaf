@@ -2,7 +2,7 @@ import fnmatch
 from importlib import import_module
 import importlib.util
 import os
-from smtplibaio import SMTP
+from smtplibaio import SMTP, SMTP_SSL
 from sanic import Blueprint, Sanic
 from sanic_session import InMemorySessionInterface, RedisSessionInterface
 from jawaf.conf import settings
@@ -170,7 +170,10 @@ class Jawaf(object):
         smtp_blueprint = Blueprint(f'{self.name}_smtp_blueprint')
         @smtp_blueprint.listener('before_server_start')
         async def connect_smtp(app, loop):
-            self._smtp = SMTP(hostname=settings.SMTP['host'], port=settings.SMTP['port'])
+            if settings.SMTP.get('ssl', False):
+                self._smtp = SMTP_SSL(hostname=settings.SMTP['host'], port=settings.SMTP['port'])
+            else:
+                self._smtp = SMTP(hostname=settings.SMTP['host'], port=settings.SMTP['port'])
             await self._smtp.connect()
             if 'username' in settings.SMTP and 'password' in settings.SMTP:
                 await self._smtp.auth.auth(settings.SMTP['username'], settings.SMTP['password'])

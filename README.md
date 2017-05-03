@@ -28,6 +28,8 @@ The goal of this project is to provide much of what Django provides (convenience
 
 [SQLAlchemy Core](http://docs.sqlalchemy.org/en/latest/core/)
 
+[Alembic](http://alembic.zzzcomputing.com/en/latest/)
+
 [PostgreSQL](https://www.postgresql.org/)
 
 [asyncpg](https://github.com/MagicStack/asyncpg)
@@ -50,6 +52,7 @@ The goal of this project is to provide much of what Django provides (convenience
 
 * Built on an async stack (Sanic) to run fast and scale.
 * Database interaction via SQLAlchemy Core
+* Database migrations via Alembic
 * Sessions via sanic_session and Redis
 * Unit testing via py.test
 * Django style management commands

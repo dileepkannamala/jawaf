@@ -35,7 +35,7 @@ def test_project():
     templates.edit_settings(os.path.abspath(os.path.join(test_dir, test_project, test_project, 'settings.py')), 
         targets=[
             ["'jawaf.auth',", "'jawaf.auth',\n    'test_app',\n    'jawaf_example_app',"],
-            ['SMTP = {', "SMTP = {'host':'localhost', 'port':8024"],
+            ['HOST', "SMTP = {'host':'localhost', 'port':8024}\n\nHOST"],
         ])
     # Setup test postgresql
     postgresql = testing.postgresql.Postgresql()
@@ -44,6 +44,7 @@ def test_project():
     import smtplibaio
     from jawaf.utils.testing import MockSMTP
     smtplibaio.SMTP = MockSMTP
+    smtplibaio.SMTP_SSL = MockSMTP
     # Setup Settings and reload modules to ensure the project settings are loaded.
     os.environ.setdefault('JAWAF_SETTINGS_MODULE', f'{test_dir}.{test_project}.{test_project}.settings')
     sys.path.insert(0, os.path.abspath(test_dir))

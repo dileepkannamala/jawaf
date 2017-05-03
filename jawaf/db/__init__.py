@@ -43,6 +43,30 @@ def create_tables(apps, warn=True):
         print('Creating tables for app {app}...')
         module.metadata.create_all(engine)
 
+def get_metadata(apps):
+    """Retrieve metadata for jawaf apps.
+    :param apps: List. App names to process.
+    :return: List. Metadata from jawaf app tables.
+    """
+    metadatas = []
+    for app in apps:
+        # First try to import the app as a package.
+        try:
+            module = import_module(f'{app}.tables')
+        except ImportError:
+            module = None
+        # If that didn't work, try importing it from the project.
+        if module == None:
+            tables_file = os.path.join(settings.BASE_DIR, app, 'tables.py')
+            tables_spec = importlib.util.spec_from_file_location(f'{app}.tables', tables_file)
+            if not tables_spec:
+                module = None
+            else:
+                module = importlib.util.module_from_spec(tables_spec)
+                tables_spec.loader.exec_module(module)
+        metadatas.append(module.metadata)
+    return metadatas
+
 class Connection:
     """Manage database connections."""
 
@@ -69,7 +93,13 @@ def get_engine(database=None):
     """Convenience wrapper for SQLAlchemy get_engine.
     :param database: String. Database name from settings.DATABASES to get connection settings from.
     """
+    return create_engine(get_engine_url(database))
+
+def get_engine_url(database=None):
+    """Convenience wrapper for SQLAlchemy get_engine.
+    :param database: String. Database name from settings.DATABASES to get connection settings from.
+    """    
     if not database:
         database = settings.DEFAULT_DATABASE_KEY
     connection_settings = settings.DATABASES[database]
-    return create_engine('{engine}://{user}:{password}@{host}:{port}/{database}'.format(**connection_settings))
+    return '{engine}://{user}:{password}@{host}:{port}/{database}'.format(**connection_settings)
