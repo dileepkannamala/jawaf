@@ -6,7 +6,7 @@ from jawaf.db import Connection, get_engine
 @pytest.mark.asyncio
 async def test_create_user(test_project, waf):
     """Test creating a user."""
-    await waf.create_database_pool('default')
+    await waf.create_database_pool()
     await users.create_user(username='test', password='pass')
     async with Connection() as con:
         query = sa.select('*').select_from(tables.user).where(tables.user.c.username=='test')

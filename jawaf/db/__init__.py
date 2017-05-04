@@ -5,6 +5,28 @@ from jawaf.server import get_jawaf
 from jawaf.conf import settings
 from sqlalchemy import create_engine, Table
 
+class Connection:
+    """Manage database connections."""
+
+    def __init__(self, database=None, server=None):
+        """Initialize
+        :param database: String. Database name to connect to. (Default: settings.DEFAULT_DATABASE_KEY)
+        :param server: jawaf instance.
+        """
+        if not server:
+            server = get_jawaf()
+        if not database:
+            database = settings.DEFAULT_DATABASE_KEY
+        self.server = server
+        self.database = database
+
+    async def __aenter__(self):
+        self.con = await self.server.connection(database=self.database)
+        return self.con
+
+    async def __aexit__(self, exc_type, exc, tb):
+        await self.server.release(self.con, database=self.database)
+
 def create_tables(apps, warn=True):
     """Create tables for each app in a jawaf project.
     :param apps: List. App names to process.
@@ -43,6 +65,21 @@ def create_tables(apps, warn=True):
         print('Creating tables for app {app}...')
         module.metadata.create_all(engine)
 
+def get_engine(database=None):
+    """Convenience wrapper for SQLAlchemy get_engine.
+    :param database: String. Database name from settings.DATABASES to get connection settings from.
+    """
+    return create_engine(get_engine_url(database))
+
+def get_engine_url(database=None):
+    """Convenience wrapper for SQLAlchemy get_engine.
+    :param database: String. Database name from settings.DATABASES to get connection settings from.
+    """    
+    if not database:
+        database = settings.DEFAULT_DATABASE_KEY
+    connection_settings = settings.DATABASES[database]
+    return '{engine}://{user}:{password}@{host}:{port}/{database}'.format(**connection_settings)
+
 def get_metadata(apps):
     """Retrieve metadata for jawaf apps.
     :param apps: List. App names to process.
@@ -66,40 +103,3 @@ def get_metadata(apps):
                 tables_spec.loader.exec_module(module)
         metadatas.append(module.metadata)
     return metadatas
-
-class Connection:
-    """Manage database connections."""
-
-    def __init__(self, database=None, server=None):
-        """Initialize
-        :param database: String. Database name to connect to. (Default: settings.DEFAULT_DATABASE_KEY)
-        :param server: jawaf instance.
-        """
-        if not server:
-            server = get_jawaf()
-        if not database:
-            database = settings.DEFAULT_DATABASE_KEY
-        self.server = server
-        self.database = database
-
-    async def __aenter__(self):
-        self.con = await self.server.connection(database=self.database)
-        return self.con
-
-    async def __aexit__(self, exc_type, exc, tb):
-        await self.server.release(self.con, database=self.database)
-
-def get_engine(database=None):
-    """Convenience wrapper for SQLAlchemy get_engine.
-    :param database: String. Database name from settings.DATABASES to get connection settings from.
-    """
-    return create_engine(get_engine_url(database))
-
-def get_engine_url(database=None):
-    """Convenience wrapper for SQLAlchemy get_engine.
-    :param database: String. Database name from settings.DATABASES to get connection settings from.
-    """    
-    if not database:
-        database = settings.DEFAULT_DATABASE_KEY
-    connection_settings = settings.DATABASES[database]
-    return '{engine}://{user}:{password}@{host}:{port}/{database}'.format(**connection_settings)

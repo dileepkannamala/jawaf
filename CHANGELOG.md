@@ -1,3 +1,10 @@
+# Version 0.2.3
+
+- Redis session fix
+- Minor db refactor
+- More tests
+- Tweaks to admin and auth views
+
 # Version 0.2.2
 
 - Template fix in manage.py

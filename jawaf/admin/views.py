@@ -52,8 +52,9 @@ class DataView(HTTPMethodView):
         async with Connection(table['database']) as con:
             query = sa.select('*').select_from(table['table']).where(table['table'].c.id==target_id)
             result = await con.fetchrow(query)
+            if not result:
+                return json({'message': 'not found', 'data': None}, status=404)
             return json({'message': 'success', 'data': result}, status=200)
-        return json({'message': 'access denied'}, status=403)
     
     @has_permission(name='patch', target='admin')
     async def patch(self, request, table_name=None):

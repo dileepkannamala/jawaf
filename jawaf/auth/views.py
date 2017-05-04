@@ -16,7 +16,7 @@ class LoginView(HTTPMethodView):
         username = request.json.get('username', '')
         password = request.json.get('password', None)
         next_url = request.json.get('next', None)
-        if password is None:
+        if not password:
             return json({'message': 'no password'}, status=403)
         user_row = await check_user(username, password)
         if user_row:
@@ -67,7 +67,7 @@ class PasswordResetView(HTTPMethodView):
         verified = await check_user_reset_access(username, user_id, token, database=None)
         if verified:            
             if new_password is None or username is None:
-                return json({'message': 'bad user data'}, status=403)
+                return json({'message': 'bad user data'}, status=401)
             await update_user(database=None, target_user_id=user_id, password=new_password)
             return json({'message': 'accepted'}, status=200)
         return json({'message': 'unauthorized'}, status=403)

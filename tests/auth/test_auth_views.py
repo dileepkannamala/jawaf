@@ -27,6 +27,16 @@ def test_login_post(test_project, waf, create_users):
     assert request['session']['user'].username == 'admin'
     assert response.status == 200
 
+def test_login_post_bad_csrf(test_project, waf, create_users):
+    """Test logging in via post."""
+    form_data = {
+        'username': 'admin',
+        'password': 'admin_pass',
+        'next': '/',
+    }
+    request, response = waf.server.test_client.post('/auth/login/', json=form_data, headers={})
+    assert response.status == 403
+
 def test_login_post_no_password(test_project, waf, create_users):
     """Test logging in via post without a password."""
     form_data = {
@@ -95,6 +105,32 @@ def test_logout_post(test_project, waf, create_users):
     assert not 'user' in request['session']
     assert response.status == 200
 
+def test_logout_post_bad_csrf(test_project, waf, create_users):
+    """Test logging out via post."""
+    form_data = {
+        'username': 'admin',
+        'password': 'admin_pass',
+        'next': '/',
+    }
+    request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/auth/logout/', headers={})
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_logout_post_not_logged_in(test_project, waf, create_users):
+    """Test logging out via post."""
+    form_data = {
+        'username': 'admin',
+        'password': 'admin_pass',
+        'next': '/',
+    }
+    # request, response = testing.simulate_login(waf, 'admin', 'admin_pass')
+    # middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/auth/logout/', headers=testing.csrf_headers())
+    # testing.injected_session_end(waf, middleware)
+    assert response.status == 401
+
 def test_password_change(test_project, waf, create_users):
     """Test changing password via post."""
     change_form_data = {
@@ -107,6 +143,32 @@ def test_password_change(test_project, waf, create_users):
     request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
+
+def test_password_change_bad_csrf(test_project, waf, create_users):
+    """Test changing password via post."""
+    change_form_data = {
+        'username': 'casual_user',
+        'old_password': 'casual_pass',
+        'new_password': 'casual_pass2',
+    }
+    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers={})
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_password_change_bad_user(test_project, waf, create_users):
+    """Test changing password for another user via post."""
+    change_form_data = {
+        'username': 'thedogtor',
+        'old_password': 'admin_pass',
+        'new_password': 'casual_pass2',
+    }
+    request, response = testing.simulate_login(waf, 'casual_user', 'casual_pass2')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/auth/password_change/', json=change_form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
 
 def test_password_change_wrong_user(test_project, waf, create_users):
     """Test changing password for another user via post."""
@@ -146,3 +208,80 @@ def test_password_reset(test_project, waf, create_users):
     request, response = waf.server.test_client.post(f'/auth/password_reset/{encoded_user_id}/{token}/', json=change_form_data, headers=testing.csrf_headers())
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
+
+def test_password_reset_bad_csrf(test_project, waf, create_users):
+    """Test changing password via post."""
+    change_form_data = {
+        'username': 'test',
+        'new_password': 'wookies',
+    }
+    selector, verifier = users._generate_split_token()
+    token = '{0}{1}'.format(selector.decode('utf-8'), verifier.decode('utf-8'))
+    with get_engine().connect() as con:
+        query = sa.select('*').select_from(user)
+        row = con.execute(query).fetchone()
+        change_form_data['username'] = row.username
+        stmt = user_password_reset.insert().values(
+            user_id=row.id,
+            selector=str(selector),
+            verifier=hashlib.sha256(verifier).hexdigest(),
+            expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=3)),
+            )
+        con.execute(stmt)
+    encoded_user_id = users.encode_user_id(row.id)
+    request, response = testing.simulate_request(waf)
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post(f'/auth/password_reset/{encoded_user_id}/{token}/', json=change_form_data, headers={})
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_password_reset_bad_token(test_project, waf, create_users):
+    """Test changing password via post."""
+    change_form_data = {
+        'username': 'test',
+        'new_password': 'wookies',
+    }
+    selector, verifier = users._generate_split_token()
+    token = 'junk'
+    with get_engine().connect() as con:
+        query = sa.select('*').select_from(user)
+        row = con.execute(query).fetchone()
+        change_form_data['username'] = row.username
+        stmt = user_password_reset.insert().values(
+            user_id=row.id,
+            selector=str(selector),
+            verifier=hashlib.sha256(verifier).hexdigest(),
+            expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=3)),
+            )
+        con.execute(stmt)
+    encoded_user_id = users.encode_user_id(row.id)
+    request, response = testing.simulate_request(waf)
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post(f'/auth/password_reset/{encoded_user_id}/{token}/', json=change_form_data, headers=testing.csrf_headers())
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_password_reset_no_new_password(test_project, waf, create_users):
+    """Test changing password via post."""
+    change_form_data = {
+        'username': 'test',
+    }
+    selector, verifier = users._generate_split_token()
+    token = '{0}{1}'.format(selector.decode('utf-8'), verifier.decode('utf-8'))
+    with get_engine().connect() as con:
+        query = sa.select('*').select_from(user)
+        row = con.execute(query).fetchone()
+        change_form_data['username'] = row.username
+        stmt = user_password_reset.insert().values(
+            user_id=row.id,
+            selector=str(selector),
+            verifier=hashlib.sha256(verifier).hexdigest(),
+            expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=3)),
+            )
+        con.execute(stmt)
+    encoded_user_id = users.encode_user_id(row.id)
+    request, response = testing.simulate_request(waf)
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post(f'/auth/password_reset/{encoded_user_id}/{token}/', json=change_form_data, headers=testing.csrf_headers())
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 401

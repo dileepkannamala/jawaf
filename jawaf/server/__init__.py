@@ -2,6 +2,7 @@ import fnmatch
 from importlib import import_module
 import importlib.util
 import os
+import asyncio_redis
 from smtplibaio import SMTP, SMTP_SSL
 from sanic import Blueprint, Sanic
 from sanic_session import InMemorySessionInterface, RedisSessionInterface
@@ -97,7 +98,6 @@ class Jawaf(object):
         """
         if not database:
             database = settings.DEFAULT_DATABASE_KEY
-        from jawaf.conf import settings
         connection_settings = settings.DATABASES[database].copy()
         connection_settings.pop('engine') # Pop out engine before passing it into the create_pool method on the db backend.
         self._db_pools[database] = await settings.DB_BACKEND.create_pool(**connection_settings)
@@ -150,16 +150,12 @@ class Jawaf(object):
         if not 'SESSION' in settings:
             return
         interface_type = settings.SESSION.pop('interface')
-        if self.testing:
-            # Set the session to in memory for unit tests.
-            # TODO: Revisit this!
-            interface_type = 'memory'
         if interface_type == 'memory':
             self._session_interface = InMemorySessionInterface()
         elif interface_type == 'redis':
-            self._session_interface = RedisSessionInterface(self.get_session_pool())
+            self._session_interface = RedisSessionInterface(self.get_session_pool)
         else:
-            raise Exception(f'Unexpected session type "{interface}".')
+            raise Exception(f'Unexpected session type "{interface_type}".')
         @self.server.middleware('request')
         async def add_session_to_request(request):
             await self._session_interface.open(request)

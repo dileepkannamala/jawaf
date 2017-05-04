@@ -28,7 +28,7 @@ def admin_login_user():
     return user_row.id, user_row.username, password
 
 def test_data_delete(test_project, waf, admin_login_user):
-    """Test posting a new user"""
+    """Test deleting a user"""
     user_id, username, password = create_admin_test_data_user('admin_test_delete')
     form_data = {
         'id': user_id,
@@ -39,6 +39,40 @@ def test_data_delete(test_project, waf, admin_login_user):
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
 
+def test_data_delete_bad_csrf(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_delete')
+    form_data = {
+        'id': user_id,
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.delete('/admin/user/', json=form_data, headers=testing.csrf_headers())
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_delete_bad_table(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_delete')
+    form_data = {
+        'id': user_id,
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.delete('/admin/cats/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_delete_no_id(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_delete')
+    form_data = {}
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.delete('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 400
+
 def test_data_get(test_project, waf, admin_login_user):
     """Test posting a new user"""
     user_id, username, password = create_admin_test_data_user('admin_test_get')
@@ -47,6 +81,95 @@ def test_data_get(test_project, waf, admin_login_user):
     request, response = waf.server.test_client.get(f'/admin/user/?id={user_id}', headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
+
+def test_data_get_bad_table(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_get')
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.get(f'/admin/cats/?id={user_id}', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_get_no_data(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_get')
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.get(f'/admin/user/?id=5000', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 404
+
+def test_data_get_no_id(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_get')
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.get(f'/admin/user/', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 400
+
+def test_data_patch(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_put')
+    form_data = {
+        'id': user_id,
+        'username': 'new',
+        'password': 'new_pass',
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    form_data[settings.CSRF_FIELD_NAME] = request['session']['csrf_token']
+    c_headers = testing.csrf_headers()
+    c_headers.pop(settings.CSRF_HEADER_NAME)
+    request, response = waf.server.test_client.patch('/admin/user/', json=form_data, headers=c_headers)
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 200
+    with get_engine('default').connect() as con:
+        query = sa.select('*').select_from(tables.user).where(tables.user.c.id==user_id)
+        row = con.execute(query)
+        assert(row.fetchone().username == 'new')
+
+def test_data_patch_bad_csrf(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_put')
+    form_data = {
+        'id': user_id,
+        'username': 'new',
+        'password': 'new_pass',
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.patch('/admin/user/', json=form_data, headers={})
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_patch_bad_table(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_put')
+    form_data = {
+        'id': user_id,
+        'username': 'new',
+        'password': 'new_pass',
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.patch('/admin/cats/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_patch_no_id(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    user_id, username, password = create_admin_test_data_user('admin_test_put')
+    form_data = {
+        'username': 'new',
+        'password': 'new_pass',
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.patch('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 400
 
 def test_data_post(test_project, waf, admin_login_user):
     """Test posting a new user"""
@@ -61,6 +184,34 @@ def test_data_post(test_project, waf, admin_login_user):
     request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
     testing.injected_session_end(waf, middleware)
     assert response.status == 201
+
+def test_data_post_bad_csrf(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    form_data = {
+        'username': 'cool',
+        'password': 'cool_pass',
+        'is_active': True,
+        'is_staff': True,
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers())
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_data_post_bad_table(test_project, waf, admin_login_user):
+    """Test posting a new user"""
+    form_data = {
+        'username': 'cool',
+        'password': 'cool_pass',
+        'is_active': True,
+        'is_staff': True,
+    }
+    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.post('/admin/cats/', json=form_data, headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
 
 def test_data_post_not_logged_in(test_project, waf, admin_login_user):
     """Test posting a new user when not logged in"""
@@ -89,21 +240,3 @@ def test_data_post_no_csrf(test_project, waf, admin_login_user):
     request, response = waf.server.test_client.post('/admin/user/', json=form_data, headers=testing.csrf_headers())
     testing.injected_session_end(waf, middleware)
     assert response.status == 403
-
-def test_data_patch(test_project, waf, admin_login_user):
-    """Test posting a new user"""
-    user_id, username, password = create_admin_test_data_user('admin_test_put')
-    form_data = {
-        'id': user_id,
-        'username': 'new',
-        'password': 'new_pass',
-    }
-    request, response = testing.simulate_login(waf, 'admin_api_test', 'admin_api_pass')
-    middleware = testing.injected_session_start(waf, request)
-    request, response = waf.server.test_client.patch('/admin/user/', json=form_data, headers=testing.csrf_headers(request))
-    testing.injected_session_end(waf, middleware)
-    assert response.status == 200
-    with get_engine('default').connect() as con:
-        query = sa.select('*').select_from(tables.user).where(tables.user.c.id==user_id)
-        row = con.execute(query)
-        assert(row.fetchone().username == 'new')

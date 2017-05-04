@@ -25,7 +25,32 @@ def test_search_get(test_project, waf, admin_login_user):
     testing.injected_session_end(waf, middleware)
     assert response.status == 200
 
+def test_search_get_bad_table(test_project, waf, admin_login_user):
+    """Test search for a user"""
+    request, response = testing.simulate_login(waf, 'admin_search_test', 'admin_search_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.get('/admin/cats/search/?field=username&value=admin_search_test', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 403
+
+def test_search_get_no_data(test_project, waf, admin_login_user):
+    """Test search for a user"""
+    request, response = testing.simulate_login(waf, 'admin_search_test', 'admin_search_pass')
+    middleware = testing.injected_session_start(waf, request)
+    request, response = waf.server.test_client.get('/admin/user/search/?field=username&value=waffles', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 401
+
 def test_search_get_sort_limit_offset(test_project, waf, admin_login_user):
+    """Test search for a user passing in a sort, limit, and offset"""
+    request, response = testing.simulate_login(waf, 'admin_search_test', 'admin_search_pass')
+    middleware = testing.injected_session_start(waf, request)
+    paramstring = 'field=username&value=admin_search_test&sort=username&limit=10&offset=0'
+    request, response = waf.server.test_client.get(f'/admin/user/search/?{paramstring}', headers=testing.csrf_headers(request))
+    testing.injected_session_end(waf, middleware)
+    assert response.status == 200
+
+def test_search_get_sort_limit_offset_reverse(test_project, waf, admin_login_user):
     """Test search for a user passing in a sort, limit, and offset"""
     request, response = testing.simulate_login(waf, 'admin_search_test', 'admin_search_pass')
     middleware = testing.injected_session_start(waf, request)
