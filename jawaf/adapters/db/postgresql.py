@@ -1,6 +1,6 @@
 import asyncpgsa
 
-class PostgresqlBackend(object):
+class PostgreSQLBackend(object):
     """Adapter for async Postgresql database backend."""
 
     async def create_pool(self, *args, **kwargs):

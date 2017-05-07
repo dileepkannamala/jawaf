@@ -5,6 +5,7 @@ import os
 import sys
 from jawaf import __dir__
 from jawaf.conf import settings
+from jawaf.exceptions import ManagementError
 
 @functools.lru_cache(maxsize=None)
 def discover():
@@ -71,7 +72,7 @@ def load_command_class(command):
     command_import = os.path.join(command['path'], '{0}.py'.format(command['name']))
     command_spec = importlib.util.spec_from_file_location('{0}.management.commands.{1}'.format(command['app'], command['name']), command_import)
     if not command_spec:
-        raise Exception(f'Error processing command file: {command_import}')
+        raise ManagementError(f'Error processing command file: {command_import}')
     module = importlib.util.module_from_spec(command_spec)
     command_spec.loader.exec_module(module)
     return module.Command()

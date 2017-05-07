@@ -2,6 +2,7 @@ from sanic.request import Request
 from sanic.response import json
 from jawaf.auth.permissions import check_permission
 from jawaf.auth.utils import login_redirect
+from jawaf.exceptions import ServerError
 
 class login_required(object):
     """Decorator to check if a user is logged in.
@@ -26,7 +27,7 @@ class login_required(object):
                     request = arg
                     break
             if not request:
-                raise Exception('No request found!')
+                raise ServerError('No request found!')
             if request['session'].get('user', None):
                 return await view_func(*args, **kwargs)
             if self.redirect:
@@ -61,7 +62,7 @@ class has_permission(object):
                     request = arg
                     break
             if not request:
-                raise Exception('No request found!')
+                raise ServerError('No request found!')
             user_row = request['session'].get('user', None)
             if user_row and await check_permission(user_row, self.name, self.target):
                 return await view_func(*args, **kwargs)

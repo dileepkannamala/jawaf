@@ -1,3 +1,11 @@
+# Version 0.3.0
+
+- Validators
+- Scaffolding to allow flexibility with different db backends
+- Refactor
+- Static file support
+- Custom exceptions
+
 # Version 0.2.3
 
 - Redis session fix

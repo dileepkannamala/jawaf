@@ -10,6 +10,9 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 BASE_DIR = os.path.dirname(PROJECT_DIR)
 
+# Uncomment to serve static files with Jawaf:
+# STATIC = {'uri': '/static/', 'directory': os.path.join(BASE_DIR, 'static')}
+
 PROJECT_NAME = '${project_name}'
 
 TABLE_PREFIX = '${project_name}'

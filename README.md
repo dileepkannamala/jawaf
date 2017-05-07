@@ -1,5 +1,5 @@
 
-## Jawaf ##
+## Jawaf
 
 [![Build Status](https://travis-ci.org/danpozmanter/jawaf.svg?branch=master)](https://travis-ci.org/danpozmanter/jawaf)
 [![Documentation](https://readthedocs.org/projects/jawaf/badge/?version=latest)](http://jawaf.readthedocs.io/en/latest/?badge=latest)
@@ -8,15 +8,20 @@
 
 **Jawaf asynchronous web application framework**
 
-A fast asynchronous web application framework.
+What if there was a web framework like [Django](https://www.djangoproject.com/) that was:
+
+* Asynchronous & Non Blocking
+* Blazing Fast
+* Built on SQLAlchemy Core?
+
+That's the motivation behind Jawaf.
+
+[Sanic](https://github.com/channelcat/sanic) is a blazing fast Python 3.5+ async, non-blocking framework. Jawaf wraps it in a way that makes Django developers feel right at home.
+It features built in sessions, async database connectivity through SQLAlchemy Core (with data migrations handled by Alembic), and built in unit testing using py.test. Jawaf also provides management commands, project/app scaffolding, built in CSRF protection, user auth, and an optional RESTful admin API. It's event extensible using simply structured python packages as apps.
 
 Read the [documentation](http://jawaf.readthedocs.io) to get started.
 
-Inspired by (and using some code/concepts from) [Django](https://www.djangoproject.com/) and the promise of [Sanic](https://github.com/channelcat/sanic).
-
-The goal of this project is to provide much of what Django provides (convenience, smart scaffolding, ease of development) on top an async python 3 core.
-
-**Built Using**
+### Built Using
 
 ***Core***
 
@@ -26,45 +31,49 @@ The goal of this project is to provide much of what Django provides (convenience
 
 ***Data***
 
-[SQLAlchemy Core](http://docs.sqlalchemy.org/en/latest/core/)
-
 [Alembic](http://alembic.zzzcomputing.com/en/latest/)
-
-[PostgreSQL](https://www.postgresql.org/)
 
 [asyncpg](https://github.com/MagicStack/asyncpg)
 
 [ascynpgsa](https://github.com/CanopyTax/asyncpgsa)
 
-***Session***
+[PostgreSQL](https://www.postgresql.org/)
 
-[sanic_session](https://github.com/subyraman/sanic_session)
+[SQLAlchemy Core](http://docs.sqlalchemy.org/en/latest/core/)
+
+***Session***
 
 [asyncio_redis](https://github.com/jonathanslenders/asyncio-redis)
 
 [Redis](https://redis.io/)
 
+[sanic_session](https://github.com/subyraman/sanic_session)
+
 ***Tests***
 
 [py.test](http://doc.pytest.org/en/latest/)
 
-**Features**
+### Features
 
 * Built on an async stack (Sanic) to run fast and scale.
-* Database interaction via SQLAlchemy Core
-* Database migrations via Alembic
-* Sessions via sanic_session and Redis
-* Unit testing via py.test
-* Django style management commands
-* Django style project/app scaffolding
+* SQLAlchemy Core integration
+* Database migrations
+* Sessions
+* Validators
+* Unit testing
+* Management commands
+* Project/app scaffolding
 * Extensible using structured python packages as apps
 * CSRF protection baked in
 * Interactive shell (using ipython or bpython if either are detected)
-* User Authentication, Groups & Permissions built in
-* Optional Admin API
 * Async SMTP support
+* Optionally server static files
+* Optional User Authentication, Groups & Permissions built in
+* Optional Admin API
 
-Note: Many of the software requirements are in beta, alpha, or even pre-alpha status.
+### Notes
+
+Many of the software requirements are in beta, alpha, or even pre-alpha status.
 You'd be well advised to have a long hard think about using this in production.
 
 Given the early status of this project it is subject to potential backwards-incompatible changes.

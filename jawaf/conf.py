@@ -5,6 +5,7 @@ from collections.abc import MutableMapping
 import importlib.util
 import tzlocal
 from jawaf import __dir__
+from jawaf.exceptions import ConfigurationError
 
 class Settings(MutableMapping):
     """Wrapper class for dict in case we want to do anything fancy down the line."""
@@ -34,9 +35,6 @@ settings = Settings()
 
 settings['DEFAULT_DATABASE_KEY'] = 'default'
 
-# TODO: Eventually make this something one can override to support other databases.
-from jawaf.adapters.db.postgresql import PostgresqlBackend
-settings['DB_BACKEND'] = PostgresqlBackend()
 settings['BASE_DIR'] = __dir__
 
 settings['INSTALLED_APPS'] = []
@@ -63,7 +61,7 @@ project_settings_path = os.environ.get('JAWAF_SETTINGS_PATH')
 if project_settings_path:
     project_settings_spec = importlib.util.spec_from_file_location(f'jawaf.project.settings', project_settings_path)
     if not project_settings_spec:
-        raise Exception(f'Error processing jawaf settings: {project_settings_path}')
+        raise ConfigurationError(f'Error processing jawaf settings: {project_settings_path}')
     project_settings_module = importlib.util.module_from_spec(project_settings_spec)
     project_settings_spec.loader.exec_module(project_settings_module)
     for project_setting in dir(project_settings_module):

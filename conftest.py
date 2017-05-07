@@ -26,6 +26,7 @@ def test_project():
     os.mkdir(test_dir)
     from jawaf.management.commands import start_project, start_app
     start_project.Command().handle(name=test_project, directory=os.path.abspath(test_dir))
+    os.mkdir(os.path.join(os.path.abspath(test_dir), 'static'))
     start_app.Command().handle(name='test_app', directory=os.path.abspath(os.path.join(test_dir, test_project)))
     # Create the code for the test project
     templates.write_template('project_routes', os.path.abspath(os.path.join(test_dir, test_project, test_project, 'routes.py')))
@@ -36,6 +37,7 @@ def test_project():
         targets=[
             ["'jawaf.auth',", "'jawaf.auth',\n    'test_app',\n    'jawaf_example_app',"],
             ['HOST', "SMTP = {'host':'localhost', 'port':8024}\n\nHOST"],
+            ["# STATIC", 'STATIC'],
         ])
     # Setup test postgresql
     postgresql = testing.postgresql.Postgresql()

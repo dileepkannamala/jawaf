@@ -214,3 +214,46 @@ async def send_email(request):
         html_message=request.json.get('html_message', None)
     )
 ```
+
+## Jawaf Exceptions
+
+Jawaf defines the following exceptions (in `jawaf.exceptions`):
+
+* ConfigurationError - Problem with configuration (settings.py)
+
+* ManagementError - Problem with management commands
+
+* ServerError - General Purpose Jawaf Error
+
+* ValidationError - Validation failed
+
+
+## Validators
+
+Jawaf Validators provide a base class for custom validation of data.
+
+Editing `polls/validators.py`
+
+```python
+from jawaf.validators import Validator
+from mysite.polls.tables import choice
+
+class ChoiceValidator(Validator):
+    __table__ = choice
+    def validate_votes(self, value):
+        if not isinstance(value, int): return False
+        return (value > -1)
+```
+
+Usage:
+
+```python
+def edit_choice(request):
+    validator = ChoiceValidator(data=request.json)
+    if not validator.is_valid():
+        do_something_with(validator.invalidated_data)
+    else:
+        do_something_with(validator.validated_data)
+```
+
+You can also define the class without specifying `__table__`. This is useful if you want to validate data that spans multiple tables, or that isn't directly tied to a table.

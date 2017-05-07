@@ -17,6 +17,8 @@ def test_get_sanic(test_project, waf):
 def test_bad_session(test_project):
     from jawaf.conf import settings
     settings['SESSION'] = {'interface': 'cats'}
+    _active_instance = jawaf.server._active_instance
     with pytest.raises(Exception) as excinfo:
         jawaf.server.Jawaf(testing=True)
         assert 'cats' in str(excinfo.value)
+    jawaf.server._active_instance = _active_instance

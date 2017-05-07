@@ -7,6 +7,8 @@ from smtplibaio import SMTP, SMTP_SSL
 from sanic import Blueprint, Sanic
 from sanic_session import InMemorySessionInterface, RedisSessionInterface
 from jawaf.conf import settings
+from jawaf.adapters.db import create_pool
+from jawaf.exceptions import ServerError
 from jawaf.security import generate_csrf_token
 
 # Active instance of Jawaf (singleton)
@@ -31,6 +33,8 @@ class Jawaf(object):
         _active_instance = self
 
         self.add_routes(routes_import=os.path.join(settings.PROJECT_DIR, 'routes.py'), base_path=settings.BASE_DIR)
+        if 'STATIC' in settings:
+            self.server.static(settings.STATIC['uri'], settings.STATIC['directory'])
         self.init_databases()
         self.init_session()
         self.init_smtp()
@@ -60,7 +64,7 @@ class Jawaf(object):
         if module == None:
             routes_spec = importlib.util.spec_from_file_location(f'{self.name}{prefix}.routes', routes_import)
             if not routes_spec:
-                raise Exception(f'Error processing routes file: {routes_import}')
+                raise ServerError(f'Error processing routes file: {routes_import}')
             module = importlib.util.module_from_spec(routes_spec)
             routes_spec.loader.exec_module(module)
         for route in module.routes:
@@ -98,9 +102,7 @@ class Jawaf(object):
         """
         if not database:
             database = settings.DEFAULT_DATABASE_KEY
-        connection_settings = settings.DATABASES[database].copy()
-        connection_settings.pop('engine') # Pop out engine before passing it into the create_pool method on the db backend.
-        self._db_pools[database] = await settings.DB_BACKEND.create_pool(**connection_settings)
+        self._db_pools[database] = await create_pool(**settings.DATABASES[database].copy())
 
     async def get_session_pool(self):
         """Asynchronously return a connection from the session connection pool."""
@@ -132,13 +134,12 @@ class Jawaf(object):
         for database in settings.DATABASES:
             db_blueprint = Blueprint(f'{self.name}_db_blueprint_{database}')
             connection_settings = settings.DATABASES[database].copy()
-            connection_settings.pop('engine') # Pop out engine before passing it into the create_pool method on the db backend.
             if not connection_settings['user']:
                 connection_settings.pop('user')
                 connection_settings.pop('password')
             @db_blueprint.listener('before_server_start')
             async def setup_connection_pool(app, loop):
-                self._db_pools[database] = await settings.DB_BACKEND.create_pool(**connection_settings)
+                self._db_pools[database] = await create_pool(**connection_settings)
             @db_blueprint.listener('after_server_stop')
             async def close_connection_pool(app, loop):
                 if database in self._db_pools and self._db_pools[database]:
@@ -155,7 +156,7 @@ class Jawaf(object):
         elif interface_type == 'redis':
             self._session_interface = RedisSessionInterface(self.get_session_pool)
         else:
-            raise Exception(f'Unexpected session type "{interface_type}".')
+            raise ServerError(f'Unexpected session type "{interface_type}".')
         @self.server.middleware('request')
         async def add_session_to_request(request):
             await self._session_interface.open(request)

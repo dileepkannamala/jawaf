@@ -6,31 +6,26 @@ Not everything on this list will be implemented, and some items not on this list
 
 This is divided into sections:
 
-`Road to 1.0.0` is the more or less official list of upcoming releases (including the first release to PyPi).
+`Road to 1.0.0` is the more or less official list of upcoming items per release.
 
-`Unversioned ToDo List` is a list of things that may or may not make it into the semi-official roadmap.
+`Unversioned ToDo List` items not attached to an upcoming version.
 
-`Unlikely` is a list of itmes that have been evaluated and won't likely make it into the core for 1.0 (unless there's a real desire for those features).
+`Unlikely` is a list of items that have been evaluated and won't likely make it into the core for 1.0.
 
 ## Road to 1.0.0
 
-### 0.3.0
+### 0.4.0
 
-#### Serializers
-    * Django Rest Framework Style Serializers?
+#### Files
+    * Support for files (local/AWS/etc)
 
-#### Error Handling
-    * Check Management Commands
+#### Security
+    * Take a fresh look at security
 
 ## Unversioned ToDo List
 
 #### Deploy/Run Options
     * [Gunicorn Support](https://pypi.python.org/pypi/sanic-gunicorn)
-
-#### Forms/Validation
-    * Is this needed?
-    * Forms
-    * Validation
 
 ## Unlikely
 

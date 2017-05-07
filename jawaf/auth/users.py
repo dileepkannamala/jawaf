@@ -8,6 +8,7 @@ from jawaf.auth.tables import user, user_password_reset
 from jawaf.auth.utils import database_key
 from jawaf.conf import settings
 from jawaf.db import Connection
+from jawaf.exceptions import ServerError
 from jawaf.security import generate_csrf_token
 from jawaf.utils.timezone import get_utc
 
@@ -146,7 +147,7 @@ def create_user_sync(engine, username='',
     :param date_joined: Datetime (with timezone). Date user account was created.
     """
     if not engine:
-        raise Exception('Must specify an SQLAlchemy Engine')
+        raise ServerError('Must specify an SQLAlchemy Engine')
     if date_joined == None:
         date_joined = get_utc(datetime.datetime.now())
     with engine.connect() as con:
@@ -257,7 +258,7 @@ async def update_user(database=None, target_username=None, target_user_id=None, 
     if 'password' in kwargs:
         kwargs['password'] = make_password(kwargs['password'])
     if not target_username and not target_user_id:
-        raise Exception('Must provide username or user_id to update')
+        raise ServerError('Must provide username or user_id to update')
     async with Connection(database) as con:
         if target_username:
             stmt = user.update().where(user.c.username==target_username).values(**kwargs)
