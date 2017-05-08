@@ -12,11 +12,11 @@ What if there was a web framework like [Django](https://www.djangoproject.com/) 
 
 * Asynchronous & Non Blocking
 * Blazing Fast
-* Built on SQLAlchemy Core?
+* Built on SQLAlchemy Core
 
 That's the motivation behind Jawaf.
 
-[Sanic](https://github.com/channelcat/sanic) is a blazing fast Python 3.5+ async, non-blocking framework. Jawaf wraps it in a way that makes Django developers feel right at home.
+[Sanic](https://github.com/channelcat/sanic) is a blazing fast Python 3.5+ async, non-blocking framework. Jawaf wraps it with Django like functionality.
 It features built in sessions, async database connectivity through SQLAlchemy Core (with data migrations handled by Alembic), and built in unit testing using py.test. Jawaf also provides management commands, project/app scaffolding, built in CSRF protection, user auth, and an optional RESTful admin API. It's event extensible using simply structured python packages as apps.
 
 Read the [documentation](http://jawaf.readthedocs.io) to get started.
