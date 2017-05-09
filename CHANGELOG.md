@@ -1,3 +1,6 @@
+# Version 0.3.2
+- Convert README from MD to RST
+
 # Version 0.3.1
 
 - Requirements Update
