@@ -35,8 +35,5 @@ This is divided into sections:
 #### Messaging
     * [Kafka](https://github.com/aio-libs/aiokafka)?
 
-#### DB
-    * Support optionally using pooling - asyncpgsa doesn't allow this
-
 #### Tests
     * testing.postgresl instead of actual postgres as an option

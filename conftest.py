@@ -82,6 +82,8 @@ def test_project():
     # Clean up
     postgresql.stop()
     shutil.rmtree(test_dir)
+    os.remove('access.log')
+    os.remove('error.log')
     pip.main(['uninstall', 'jawaf_example_app', '-y'])
 
 @pytest.fixture(scope='session')

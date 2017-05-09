@@ -1,3 +1,9 @@
+# Version 0.3.1
+
+- Requirements Update
+- README Update
+- Quick fix to remove *log files created after tests
+
 # Version 0.3.0
 
 - Validators

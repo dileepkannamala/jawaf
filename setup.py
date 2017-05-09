@@ -3,6 +3,9 @@ from setuptools import find_packages, setup
 
 version = __import__('jawaf').__version__
 
+with open('README.md', 'r') as f:
+    long_description = f.read()
+
 setup(
     author='Dan Pozmanter',
     classifiers=[
@@ -22,6 +25,7 @@ setup(
     include_package_data=True,
     keywords='web framework',
     license='BSD',
+    long_description=long_description,
     name='Jawaf',
     packages=find_packages(),
     scripts=['jawaf/bin/jawaf-admin.py'],
