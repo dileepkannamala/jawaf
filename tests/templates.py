@@ -28,7 +28,7 @@ app_tables = '''from sqlalchemy import Column, Integer, MetaData, Table, Text
 metadata = MetaData()
 
 person = Table('test_app_person', metadata,
-   Column('id', Integer, primary_key=True),
+   Column('id', Integer(), primary_key=True),
    Column('name', Text()),
    )
 '''

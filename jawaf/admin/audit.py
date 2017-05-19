@@ -21,7 +21,6 @@ async def add_audit_action(name, target, table_name, user_row, database=None):
             target=target,
             user_id=user_row.id,
             username=user_row.id,
-            timestamp=get_utc(datetime.datetime.now()),
             )
         await con.execute(stmt)
 

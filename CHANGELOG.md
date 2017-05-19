@@ -1,3 +1,8 @@
+# Version 0.3.3
+
+- Adding created/modified to auth and admin tables.
+- Some minor code cleanup
+
 # Version 0.3.2
 
 - Convert README from MD to RST
