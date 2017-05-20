@@ -35,13 +35,7 @@ Read the `documentation`_ to get started.
 
 `ascynpgsa`_
 
-`PostgreSQL`_
-
 `SQLAlchemy Core`_
-
-`asyncio\_redis`_
-
-`Redis`_
 
 `sanic\_session`_
 
@@ -59,8 +53,7 @@ Read the `documentation`_ to get started.
 -  Project/app scaffolding
 -  Extensible using structured python packages as apps
 -  CSRF protection baked in
--  Interactive shell (using ipython or bpython if either are detected)
--  Async SMTP support
+-  Send email asynchronously
 -  Optionally server static files
 -  Optional User Authentication, Groups & Permissions built in
 -  Optional Admin API
@@ -83,9 +76,7 @@ Jawaf is provided “at your own risk”.
 .. _Alembic: http://alembic.zzzcomputing.com/en/latest/
 .. _asyncpg: https://github.com/MagicStack/asyncpg
 .. _ascynpgsa: https://github.com/CanopyTax/asyncpgsa
-.. _PostgreSQL: https://www.postgresql.org/
 .. _SQLAlchemy Core: http://docs.sqlalchemy.org/en/latest/core/
-.. _asyncio\_redis: https://github.com/jonathanslenders/asyncio-redis
 .. _Redis: https://redis.io/
 .. _sanic\_session: https://github.com/subyraman/sanic_session
 .. _py.test: http://doc.pytest.org/en/latest/
