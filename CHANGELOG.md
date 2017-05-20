@@ -1,7 +1,6 @@
 # Version 0.3.4
 
 - Doc cleanup
-- asyncio_redis -> aioredis
 
 # Version 0.3.3
 
