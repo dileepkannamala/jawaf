@@ -54,7 +54,6 @@ Read the `documentation`_ to get started.
 -  Extensible using structured python packages as apps
 -  CSRF protection baked in
 -  Send email asynchronously
--  Optionally server static files
 -  Optional User Authentication, Groups & Permissions built in
 -  Optional Admin API
 
