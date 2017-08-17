@@ -65,7 +65,7 @@ async def check_user_reset_access(username, user_id, split_token, database=None)
             # username and id don't match!
             return False
         query = sa.select('*').select_from(user_password_reset) \
-            .where(user_password_reset.c.selector==selector) \
+            .where(user_password_reset.c.selector==str(selector)) \
             .where(user_password_reset.c.user_id==user_id)
         row = await con.fetchrow(query)
         if not row:
@@ -198,7 +198,7 @@ async def generate_reset_split_token(user_id, database=None):
     async with Connection(database) as con:
         stmt = user_password_reset.insert().values(
             user_id=user_id,
-            selector=selector,
+            selector=str(selector),
             verifier=hashlib.sha256(verifier).hexdigest(),
             expires=get_utc(datetime.datetime.now()+datetime.timedelta(hours=settings.AUTH_CONFIG['password_reset_expiration'])),
             )

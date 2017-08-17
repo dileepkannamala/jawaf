@@ -1,3 +1,9 @@
+# Version 0.3.5
+
+- Upgrading Sanic, SQLAlchemy, asyncpgsa, asyncpg, etc.
+- Updating core code and tests as necessary.
+- Locking versions in requirements.txt for compatibility.
+
 # Version 0.3.4
 
 - Doc cleanup

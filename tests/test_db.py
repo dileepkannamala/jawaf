@@ -1,5 +1,5 @@
 import pytest
-import asyncpgsa.connection
+import asyncpg
 from jawaf.db import Connection, create_tables, get_engine, get_metadata
     
 @pytest.mark.asyncio
@@ -25,5 +25,5 @@ async def test_connection(test_project, waf):
     """Test the Connection class."""
     await waf.create_database_pool('default')
     async with Connection() as con:
-        assert type(con) == asyncpgsa.connection.SAConnection
+        assert type(con) == asyncpg.pool.PoolConnectionProxy
     await waf.close_database_pools()

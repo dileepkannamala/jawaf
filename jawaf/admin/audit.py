@@ -20,7 +20,7 @@ async def add_audit_action(name, target, table_name, user_row, database=None):
             table=table_name,
             target=target,
             user_id=user_row.id,
-            username=user_row.id,
+            username=user_row.username,
             )
         await con.execute(stmt)
 

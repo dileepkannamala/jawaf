@@ -70,14 +70,17 @@ async def create_group(name, permission_pairs, database=None):
     """
     database = database_key(database)
     async with Connection(database) as con:
-        stmt = group.insert().values(
-            name=name,
-            )
-        grp = await con.fetchrow(stmt)
+        stmt = group.insert().values(name=name)
+        await con.execute(stmt)
+        query = sa.select('*').select_from(group).where(group.c.name==name).order_by(group.c.id.desc())
+        grp = await con.fetchrow(query)
         perms = []
         for permission_pair in permission_pairs:
             stmt = permission.insert().values(**permission_pair)
-            perms.append(await con.fetchrow(stmt))
+            await con.execute(stmt)
+            query = sa.select('*').select_from(permission).order_by(permission.c.id.desc())
+            perm = await con.fetchrow(query)
+            perms.append(perm)
         for perm in perms:
             stmt = group_permission.insert().values(
                     permission_id=perm.id,

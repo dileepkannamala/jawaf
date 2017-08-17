@@ -5,4 +5,4 @@ def test_query(test_project, waf):
     commands = jawaf.management.discover()
     jawaf.management.run_command(commands['do_insert'], ['', ''])
     request, response = waf.server.test_client.get('/example_app/query/')
-    assert "question_text='What?'" in response.text
+    assert 'What?' in response.text
