@@ -4,7 +4,7 @@ import pytz
 import tzlocal
 from jawaf.utils import timezone
 
-if time.tzname[0] is not 'UTC':
+if time.tzname != ('UTC', 'UTC'):
     print('Offset!')
     UTC_OFFSET = datetime.datetime.now(
         tzlocal.get_localzone()).utcoffset().total_seconds() / 3600
