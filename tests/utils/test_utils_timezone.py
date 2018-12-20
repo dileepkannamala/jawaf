@@ -6,7 +6,7 @@ from jawaf.utils import timezone
 
 UTC_OFFSET = datetime.datetime.now(
     tzlocal.get_localzone()).utcoffset().total_seconds() / 3600
-if not time.localtime().tm_isdst:
+if not time.localtime().tm_isdst > 0:
     UTC_OFFSET += 1
 
 
@@ -22,7 +22,7 @@ def test_get_utc():
     target = datetime.datetime(2017, 4, 11, 0, 0)
     utc_target = timezone.get_utc(target)
     print('utc')
-    print(time.localtime().tm_isdst)
+    print(time.localtime().tm_isdst > 0)
     print(UTC_OFFSET)
     print(target)
     print(utc_target)
