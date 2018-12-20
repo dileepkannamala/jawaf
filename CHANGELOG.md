@@ -1,3 +1,10 @@
+# Version 0.4.0
+
+- Upgrading Sanic and most requirements.
+- Related code changes.
+- Small bug fixes.
+- Linting.
+
 # Version 0.3.5
 
 - Upgrading Sanic, SQLAlchemy, asyncpgsa, asyncpg, etc.
@@ -21,7 +28,7 @@
 
 - Requirements Update
 - README Update
-- Quick fix to remove *log files created after tests
+- Quick fix to remove *log files created after tests*
 
 # Version 0.3.0
 
