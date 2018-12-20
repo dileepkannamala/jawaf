@@ -5,11 +5,14 @@ import tzlocal
 from jawaf.utils import timezone
 
 if time.tzname[0] is not 'UTC':
+    print('Offset!')
     UTC_OFFSET = datetime.datetime.now(
         tzlocal.get_localzone()).utcoffset().total_seconds() / 3600
     if not time.localtime().tm_isdst > 0:
+        print('Adjusting offset for DST')
         UTC_OFFSET += 1
 else:
+    print('No Offset')
     UTC_OFFSET == 0
 
 
