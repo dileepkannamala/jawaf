@@ -4,10 +4,13 @@ import pytz
 import tzlocal
 from jawaf.utils import timezone
 
-UTC_OFFSET = datetime.datetime.now(
-    tzlocal.get_localzone()).utcoffset().total_seconds() / 3600
-if not time.localtime().tm_isdst > 0:
-    UTC_OFFSET += 1
+if time.tzname[0] is not 'UTC':
+    UTC_OFFSET = datetime.datetime.now(
+        tzlocal.get_localzone()).utcoffset().total_seconds() / 3600
+    if not time.localtime().tm_isdst > 0:
+        UTC_OFFSET += 1
+else:
+    UTC_OFFSET == 0
 
 
 def test_get_local():
@@ -21,10 +24,5 @@ def test_get_utc():
     """Test converting a naive datetime -> utc datetime with timezone info."""
     target = datetime.datetime(2017, 4, 11, 0, 0)
     utc_target = timezone.get_utc(target)
-    print('utc')
-    print(time.localtime().tm_isdst > 0)
-    print(UTC_OFFSET)
-    print(target)
-    print(utc_target)
     assert utc_target.tzinfo == pytz.utc
     assert utc_target.hour == int(0 - UTC_OFFSET)

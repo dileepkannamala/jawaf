@@ -17,5 +17,5 @@ def get_utc(naive_datetime):
     (controlling for daylight savings time)"""
     return LOCAL_TIMEZONE.localize(
         naive_datetime,
-        is_dst=time.localtime().tm_isdst
+        is_dst=(time.localtime().tm_isdst > 0)
     ).astimezone(pytz.utc)
