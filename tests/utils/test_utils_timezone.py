@@ -13,7 +13,7 @@ if time.tzname != ('UTC', 'UTC'):
         UTC_OFFSET += 1
 else:
     print('No Offset')
-    UTC_OFFSET == 0
+    UTC_OFFSET = 0
 
 
 def test_get_local():
