@@ -4,11 +4,12 @@ import re
 import secrets
 from jawaf.conf import settings
 
-RE_STRIP_HTTPS = re.compile('http[s]{0,1}\:\/\/')
-RE_STRIP_PATH = re.compile('\/.*?')
+RE_STRIP_HTTPS = re.compile(r'http[s]{0,1}\:\/\/')
+RE_STRIP_PATH = re.compile(r'\/.*?')
 
 # Reference:
 # https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet
+
 
 def check_csrf_headers(headers):
     """Test headers to protect against CSRF and ensure:
@@ -19,9 +20,11 @@ def check_csrf_headers(headers):
     """
     if not headers.get('x-requested-with', None) == 'XMLHttpRequest':
         return False
-    origin = RE_STRIP_PATH.sub('', RE_STRIP_HTTPS.sub('', headers.get('origin', '')))
+    origin = RE_STRIP_PATH.sub(
+        '', RE_STRIP_HTTPS.sub('', headers.get('origin', '')))
     host = headers.get('host', None)
     return origin == host
+
 
 def check_csrf(request):
     """Check for CSRF protection layers - headers & token.
@@ -38,14 +41,17 @@ def check_csrf(request):
             return False
     return token == request['session']['csrf_token']
 
+
 def generate_csrf_token(user_id=None, user_last_login=None):
-    """Generate csrf token from user id and user last login, or a random token if not logged in.
+    """Generate csrf token from user id and user last login,
+    or a random token if not logged in.
     :param user_id: Int. User id.
     :param user_last_login: Datetime. Last login datetime.
     :return: String. Token.
-    """ 
+    """
     if user_id and user_last_login:
-        message = bytearray('{0}|{1}'.format(user_id, str(user_last_login)), 'utf-8')
+        message = bytearray('{0}|{1}'.format(
+            user_id, str(user_last_login)), 'utf-8')
     else:
         message = secrets.token_bytes(24)
     secret = bytearray(settings.SECRET_KEY, 'utf-8')

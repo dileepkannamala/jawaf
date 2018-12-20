@@ -2,6 +2,7 @@ from jawaf.conf import settings
 from jawaf.db import create_tables
 from jawaf.management.base import BaseCommand
 
+
 class Command(BaseCommand):
     """Create tables in tables.py files via SQLAlchemy
     **Note** This is mainly used internally for unit tests.

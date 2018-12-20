@@ -4,7 +4,8 @@ import sys
 
 if __name__ == '__main__':
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    os.environ.setdefault('JAWAF_SETTINGS_PATH', f'{base_dir}/${project_name}/settings.py')
+    os.environ.setdefault(
+        'JAWAF_SETTINGS_PATH', f'{base_dir}/${project_name}/settings.py')
     sys.path.insert(0, os.path.dirname(base_dir))
     try:
         from jawaf.management import execute_from_command_line

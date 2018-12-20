@@ -1,9 +1,7 @@
-import datetime
 from jawaf.admin.tables import audit_action
 from jawaf.admin.utils import database_key
 from jawaf.db import Connection
-from jawaf.utils.timezone import get_utc
-import sqlalchemy as sa
+
 
 async def add_audit_action(name, target, table_name, user_row, database=None):
     """Add audit action
@@ -19,9 +17,9 @@ async def add_audit_action(name, target, table_name, user_row, database=None):
             name=name,
             table=table_name,
             target=target,
-            user_id=user_row.id,
-            username=user_row.username,
+            user_id=user_row.get('id'),
+            username=user_row.get('username'),
             )
         await con.execute(stmt)
 
-#TODO: Potentially add in convenience methods to clean this table after X amount of time?
+# TODO: Potentially add in convenience methods to clean this table?

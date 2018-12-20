@@ -1,32 +1,48 @@
 import datetime
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, MetaData, Table, Text
+from sqlalchemy import (
+    Boolean, Column, DateTime, ForeignKey, Integer, MetaData, Table, Text
+)
 from jawaf.conf import settings
 
 metadata = MetaData()
 
-group = Table('auth_group', metadata,
+group = Table(
+    'auth_group',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('created', DateTime(timezone=True), default=datetime.datetime.now),
-    Column('modified', DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now),
+    Column('modified', DateTime(
+        timezone=True), default=datetime.datetime.now,
+        onupdate=datetime.datetime.now),
     Column('name', Text()),
     )
 
-group_permission = Table('auth_group_permission', metadata,
+group_permission = Table(
+    'auth_group_permission',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('group_id', Integer(), ForeignKey('auth_group.id'), nullable=False),
-    Column('permission_id', Integer(), ForeignKey('auth_permission.id'), nullable=False),
+    Column(
+        'permission_id', Integer(), ForeignKey('auth_permission.id'),
+        nullable=False),
     )
 
-permission = Table('auth_permission', metadata,
+permission = Table(
+    'auth_permission',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('name', Text()),
     Column('target', Text()),
     )
 
-user = Table('auth_user', metadata,
+user = Table(
+    'auth_user',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('created', DateTime(timezone=True), default=datetime.datetime.now),
-    Column('modified', DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now),
+    Column(
+        'modified', DateTime(timezone=True), default=datetime.datetime.now,
+        onupdate=datetime.datetime.now),
     Column('username', Text()),
     Column('password', Text()),
     Column('first_name', Text(), nullable=True),
@@ -40,20 +56,26 @@ user = Table('auth_user', metadata,
     Column('last_login', DateTime(timezone=True)),
     )
 
-user_group = Table('auth_user_group', metadata,
+user_group = Table(
+    'auth_user_group',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('created', DateTime(timezone=True), default=datetime.datetime.now),
-    Column('modified', DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now),
+    Column(
+        'modified', DateTime(timezone=True), default=datetime.datetime.now,
+        onupdate=datetime.datetime.now),
     Column('group_id', Integer(), ForeignKey('auth_group.id'), nullable=False),
     Column('user_id', Integer(), ForeignKey('auth_user.id'), nullable=False),
     )
 
-user_password_reset = Table('auth_user_password_reset', metadata,
+user_password_reset = Table(
+    'auth_user_password_reset',
+    metadata,
     Column('id', Integer(), primary_key=True),
     Column('user_id', Integer(), ForeignKey('auth_user.id'), nullable=False),
     Column('selector', Text()),
     Column('verifier', Text()),
-    Column('expires', DateTime(timezone=True)), 
+    Column('expires', DateTime(timezone=True)),
     )
 
-DATABASE = settings.AUTH_CONFIG['database']
+DATABASE = settings.AUTH_CONFIG['database'] # noqa - for import

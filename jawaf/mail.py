@@ -2,6 +2,7 @@ from jawaf.server import get_jawaf
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
 def _address_string(addr):
     """Convenience method to treat a given address field as a string or tuple/list
     :param addr: String or List/Tuple. Single address or addresses."""
@@ -9,7 +10,10 @@ def _address_string(addr):
         return addr
     return ','.join(addr)
 
-async def send_mail(subject, message, from_address, to, cc=None, bcc=None, html_message=None):
+
+async def send_mail(
+    subject, message, from_address, to, cc=None, bcc=None, html_message=None
+):
     """Send mail using async smtp lib.
     :param subject: String. Subject.
     :param message: String. Message.

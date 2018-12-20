@@ -4,13 +4,16 @@ from fnmatch import fnmatch
 import os
 from mako.template import Template
 from jawaf import __dir__, __version__
+from jawaf.exceptions import ManagementError
+
 
 class BaseCommand(object):
     """Base management command class."""
 
-    ### create_parser method is from Django with significant edits.
+    # create_parser method is from Django with significant edits.
     def create_parser(self, prog_name, subcommand):
-        """Create and return the ``ArgumentParser`` which will be used to parse the arguments to this command.
+        """Create and return the ``ArgumentParser``
+        which will be used to parse the arguments to this command.
         :param prog_name: String. Program name.
         :param subcommand: String. subcommand.
         """
@@ -24,7 +27,8 @@ class BaseCommand(object):
         pass
 
     def execute(self, **options):
-        """Wrap the call to handle in case we want to do any setup like Django does in the future.
+        """Wrap the call to handle in case we want to do any setup like
+        Django does in the future.
 
         :param options: Dictionary of argparse options.
         """
@@ -33,31 +37,39 @@ class BaseCommand(object):
     def handle(self, **options):
         """Override in subclasses
 
-        Doesn't replicate legacy optparse behavior. Positional arguments if present are
+        Doesn't replicate legacy optparse behavior.
+        Positional arguments if present are
         in the `args` key in **options.
 
         :param options: Dictionary of argparse options.
         """
         pass
 
+
 class TemplateCommand(BaseCommand):
-    """Base management command class for jawaf template commands (start-project and start-app)."""
+    """Base management command class for jawaf template commands
+    (start-project and start-app)."""
 
     def __init__(self):
-        """Initialize command with general purpose variables such as 'version'."""
+        """Initialize command with general purpose variables such as 'version'.
+        """
         super(BaseCommand, self).__init__()
-        self.variables = {'version': __version__, 'next': '${next}', 'csrf_token': '${csrf_token}'}
+        self.variables = {
+            'version': __version__,
+            'next': '${next}',
+            'csrf_token': '${csrf_token}'}
 
     def add_arguments(self, parser):
         """ArgParse add_arguments override to add `name` and `directory` options.
         :param parser: ArgParse parser.
         """
         parser.add_argument('name', help='Name of the application or project.')
-        parser.add_argument('--directory', help='Optional destination directory')
+        parser.add_argument(
+            '--directory', help='Optional destination directory')
 
     def handle(self, **options):
-        """Called when command executes. 
-        Generates variables to pass into template and then renders the templates.
+        """Called when command executes.
+        Generates variables to pass into template, then renders the templates.
         :param options: kwargs. Options passed in from execution of command.
         """
         template = options.pop('template')
@@ -76,9 +88,14 @@ class TemplateCommand(BaseCommand):
         except ImportError:
             pass
         else:
-            raise CommandError(f'{target_name} conflicts with an existing module. Please try another name.')
+            raise ManagementError(
+                f'{target_name} conflicts with an existing module. Please try another name.'
+            )
         template_dir = os.path.join(__dir__, 'templates', template)
-        self._render(target_name, template_dir, os.path.join(target_base_dir, target_name))
+        self._render(
+            target_name,
+            template_dir,
+            os.path.join(target_base_dir, target_name))
         return target_base_dir, target_name
 
     def _render(self, target_name, read_path, write_path):
@@ -89,14 +106,20 @@ class TemplateCommand(BaseCommand):
         """
         if os.path.isdir(read_path):
             if os.path.split(read_path)[1] == 'project_name':
-                write_path = os.path.join(os.path.split(write_path)[0], self.variables['project_name'])
+                write_path = os.path.join(
+                    os.path.split(write_path)[0],
+                    self.variables['project_name'])
             os.mkdir(write_path)
             for filename in os.listdir(read_path):
                 if fnmatch(filename, 'test_*'):
-                    write_filename = filename.replace('test_', f'test_{target_name}_')
+                    write_filename = filename.replace(
+                        'test_', f'test_{target_name}_')
                 else:
                     write_filename = filename
-                self._render(target_name, os.path.join(read_path, filename), os.path.join(write_path, write_filename))
+                self._render(
+                    target_name,
+                    os.path.join(read_path, filename),
+                    os.path.join(write_path, write_filename))
         else:
             tpl = Template(filename=read_path)
             with open(os.path.splitext(write_path)[0], 'w') as f:

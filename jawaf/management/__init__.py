@@ -1,5 +1,4 @@
 import functools
-from importlib import import_module
 import importlib.util
 import os
 import sys
@@ -7,9 +6,11 @@ from jawaf import __dir__
 from jawaf.conf import settings
 from jawaf.exceptions import ManagementError
 
+
 @functools.lru_cache(maxsize=None)
 def discover():
-    """Discover management commands in the jiwaf core and in the active application.
+    """Discover management commands in the jiwaf
+    core and in the active application.
 
     :return: List of commands to run.
     """
@@ -17,7 +18,7 @@ def discover():
     commands = {}
     paths = [settings.BASE_DIR, __dir__]
     for app in settings.INSTALLED_APPS:
-        if not 'jawaf.' in app:
+        if 'jawaf.' not in app:
             try:
                 module = __import__(app)
                 paths.append(module.__path__._path[0])
@@ -30,6 +31,7 @@ def discover():
             if os.path.isdir(fpath):
                 commands.update(get_commands_in_app(fpath))
     return commands
+
 
 def get_commands_in_app(path):
     """Get commands (leaving out any files that start with an underscore).
@@ -45,8 +47,9 @@ def get_commands_in_app(path):
     for filename in os.listdir(path):
         if filename[0] != '_':
             name = os.path.splitext(filename)[0]
-            commands[name] = {'path': path, 'app':app, 'name': name}
+            commands[name] = {'path': path, 'app': app, 'name': name}
     return commands
+
 
 def execute_from_command_line():
     """Discovers management commands and runs them."""
@@ -58,24 +61,30 @@ def execute_from_command_line():
     except IndexError:
         # No argument? Display help.
         command = 'help'
-    if not command in commands:
+    if command not in commands:
         command = 'help'
     if command == 'help':
         args = args[:2]
     run_command(commands[command], args)
+
 
 def load_command_class(command):
     """Load module and Command class instance from app/name pairing.
     :param command: Dict. App name and command name.
     :return: Instance of named management command in target app.
     """
-    command_import = os.path.join(command['path'], '{0}.py'.format(command['name']))
-    command_spec = importlib.util.spec_from_file_location('{0}.management.commands.{1}'.format(command['app'], command['name']), command_import)
+    command_import = os.path.join(
+        command['path'], '{0}.py'.format(command['name']))
+    command_spec = importlib.util.spec_from_file_location(
+        '{0}.management.commands.{1}'.format(
+            command['app'], command['name']), command_import)
     if not command_spec:
-        raise ManagementError(f'Error processing command file: {command_import}')
+        raise ManagementError(
+            f'Error processing command file: {command_import}')
     module = importlib.util.module_from_spec(command_spec)
     command_spec.loader.exec_module(module)
     return module.Command()
+
 
 def run_command(command, args):
     """Run a discovered command.

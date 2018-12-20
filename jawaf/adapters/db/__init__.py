@@ -1,5 +1,6 @@
 from jawaf.exceptions import ServerError
 
+
 async def create_pool(**connection_settings):
     """Create a pool using the `engine` to call the right db backend.
     :param connection_settings: Kwargs.

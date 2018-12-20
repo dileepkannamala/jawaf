@@ -1,8 +1,10 @@
 from jawaf.exceptions import ValidationError
 
+
 class Validator(object):
 
-    # When overriding Validator, optionally set __table__ to point to the SQLAlchemy Table you wish to validate
+    # When overriding Validator, optionally set __table__ to point to
+    # the SQLAlchemy Table you wish to validate
     __table__ = None
 
     def __init__(self, data):
@@ -16,7 +18,8 @@ class Validator(object):
         self.columns = {}
         if self.__table__ is not None:
             for name in self.__table__.columns.keys():
-                self.columns[name] = self._stringify_type(self.__table__.columns.get(name).type)
+                self.columns[name] = self._stringify_type(
+                    self.__table__.columns.get(name).type)
 
     def _stringify_type(self, sa_type):
         """Internal method to turn SQLAlchemy types to strings
@@ -27,9 +30,10 @@ class Validator(object):
 
     def is_valid(self, raise_exception=False):
         """Clean and Validate data, optionally raising an exception.
-        Populates `Validator.cleaned_data` and `Validator.validated_data` 
+        Populates `Validator.cleaned_data` and `Validator.validated_data`
         as well as `Validator.invalidated_data` if invalid data is found.
-        :param raise_exception: Boolean. Whether to raise a `jawaf.exceptions.ValidationError`
+        :param raise_exception: Boolean. Whether to raise a
+        `jawaf.exceptions.ValidationError`
         :return: Boolean. Whether valid.
         """
         for key in self.data:
@@ -52,7 +56,8 @@ class Validator(object):
                 # For now - valid by default if there's no way to check.
                 self.validated_data[key] = self.cleaned_data[key]
         if self.invalidated_data and raise_exception:
-            raise ValidationError('Validation Failed', self.invalidated_data.keys())
+            raise ValidationError(
+                'Validation Failed', self.invalidated_data.keys())
         elif self.invalidated_data:
             return False
         return True

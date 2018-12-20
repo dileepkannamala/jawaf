@@ -188,11 +188,11 @@ After configuing settings to point to an SMTP server:
 
 ```python
 SMTP = {
-    'host':'localhost',
+    'host': 'localhost',
     'port': 8025,
-    'username': '', # Optional, default blank
-    'password': '', # Optional, default blank
-    'ssl': False, # Optional, default False
+    'username': '',  # Optional, default blank
+    'password': '',  # Optional, default blank
+    'ssl': False,  # Optional, default False
 }
 ```
 
@@ -205,7 +205,8 @@ The recipient address arguments (`to`, `cc`, and `bcc`) all accept either a stri
 from jawaf.mail import send_mail
 
 async def send_email(request):
-    await send_mail(subject=request.json.get('subject'),
+    await send_mail(
+        subject=request.json.get('subject'),
         message=request.json.get('message'), 
         from_address=request.json.get('from_address'), 
         to=request.json.get('to'), 

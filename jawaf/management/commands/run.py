@@ -1,7 +1,7 @@
-import os
 from jawaf.conf import settings
 from jawaf.management.base import BaseCommand
 from jawaf.server import Jawaf
+
 
 class Command(BaseCommand):
     """Run Jawaf"""
@@ -18,7 +18,9 @@ class Command(BaseCommand):
         # Optionally override settings with command line options:
         host = options['host'] if options['host'] else settings.HOST
         port = options['port'] if options['port'] else settings.PORT
-        debug = (options['debug'].lower() == 'true') if options['debug'] else settings.DEBUG
-        workers = int(options['workers']) if options['workers'] else settings.WORKERS
+        debug = (options['debug'].lower() == 'true') if options['debug'] \
+            else settings.DEBUG
+        workers = int(options['workers']) if options['workers'] \
+            else settings.WORKERS
         # Run the server
         waf.run(host=host, port=port, debug=debug, workers=workers)

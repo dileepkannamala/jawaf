@@ -11,9 +11,11 @@ target_metadata = get_metadata(settings.INSTALLED_APPS)'''
 
 SQL_CONNECT_OVERRIDE = '''config = context.config
 
-# Override SQL Alchemy connection string in `ini` file using `default` db connect string.
+# Override SQL Alchemy connection string in `ini` file using
+`default` db connect string.
 from jawaf.db import get_engine_url
 config.set_main_option('sqlalchemy.url', get_engine_url())'''
+
 
 class Command(TemplateCommand):
     """Start a new jawaf project."""

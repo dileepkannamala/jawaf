@@ -1,8 +1,5 @@
-import os
-from jawaf.server import Jawaf
 from jawaf.management import discover
 from jawaf.management.base import BaseCommand
-from jawaf.conf import settings
 
 help_text = '''
 Available commands:
@@ -13,6 +10,7 @@ Usage:
 
 python manage.py [command]
 '''
+
 
 class Command(BaseCommand):
     """Jawaf help"""

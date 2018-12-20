@@ -1,7 +1,9 @@
-# Templates used by ../conftest.py to generate the test project, plus two utility methods.
+# Templates used by ../conftest.py to generate the test project,
+# plus two utility methods.
 
 project_routes = '''
-from test_project.test_app.views import default, login # Quick view hack for testing purposes
+from test_project.test_app.views import default, login
+# Quick view hack for testing purposes
 routes = [
     {'uri': '/', 'handler': default},
     {'uri': '/login/', 'handler': login},
@@ -12,7 +14,9 @@ routes = [
 ]
 '''
 
-app_routes = '''from test_project.test_app.views import hello, read_only, protected, protected_403, send_email
+app_routes = '''from test_project.test_app.views import (
+    hello, read_only, protected, protected_403, send_email
+)
 
 routes = [
     {'uri': 'hello/', 'handler': hello},
@@ -60,15 +64,16 @@ async def login(request):
 
 async def send_email(request):
     await send_mail(subject=request.json.get('subject'),
-        message=request.json.get('message'), 
-        from_address=request.json.get('from_address'), 
-        to=request.json.get('to'), 
+        message=request.json.get('message'),
+        from_address=request.json.get('from_address'),
+        to=request.json.get('to'),
         cc=request.json.get('cc', None),
         bcc=request.json.get('bcc', None),
         html_message=request.json.get('html_message', None)
     )
     return text('!')
 '''
+
 
 def edit_settings(settings_path, targets=[]):
     data = ''
@@ -78,6 +83,7 @@ def edit_settings(settings_path, targets=[]):
         data = data.replace(target, new_string)
     with open(settings_path, 'w') as f:
         data = f.write(data)
+
 
 def write_template(name, path):
     with open(path, 'w') as f:

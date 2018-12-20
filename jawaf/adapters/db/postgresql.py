@@ -1,5 +1,6 @@
 import asyncpgsa
 
+
 class PostgreSQLBackend(object):
     """Adapter for async Postgresql database backend."""
 

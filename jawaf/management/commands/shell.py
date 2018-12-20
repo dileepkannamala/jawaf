@@ -1,7 +1,7 @@
-import os
 from jawaf.conf import settings
 from jawaf.management.base import BaseCommand
 from jawaf.server import Jawaf
+
 
 class Command(BaseCommand):
     """Start jawaf shell"""

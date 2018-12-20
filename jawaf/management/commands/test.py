@@ -1,10 +1,9 @@
-import os
 import pytest
 from sqlalchemy_utils import database_exists, create_database
 from jawaf.conf import settings
 from jawaf.db import create_tables, get_engine
 from jawaf.management.base import BaseCommand
-from jawaf.server import Jawaf
+
 
 class Command(BaseCommand):
     """Run py.test framework, set up test databases."""
