@@ -45,10 +45,10 @@ Read the `documentation`_ to get started.
 
 -  Built on an async stack (Sanic) to run fast and scale.
 -  SQLAlchemy Core integration
--  Database migrations
--  Sessions
+-  Database migrations (via Alembic)
+-  Sessions (via sanic_session)
 -  Validators
--  Unit testing
+-  Unit testing (via py.test)
 -  Management commands
 -  Project/app scaffolding
 -  Extensible using structured python packages as apps
