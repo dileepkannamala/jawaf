@@ -1,6 +1,8 @@
 Jawaf
 =====
 
+**NOTE: This project is no longer active. I may end up deleting it, but am leaving it up for now.**
+
 |Build Status| |Documentation| |PyPI| |PyPI Version|
 
 **Jawaf asynchronous web application framework**
