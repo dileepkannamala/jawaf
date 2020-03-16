@@ -1,7 +1,7 @@
 Jawaf
 =====
 
-**NOTE: This project is no longer active. I may end up deleting it, but am leaving it up for now.**
+**NOTE:Forked from Danpozmater. Will be renamed to smoething else later**
 
 |Build Status| |Documentation| |PyPI| |PyPI Version|
 
